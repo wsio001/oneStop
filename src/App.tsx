@@ -15,7 +15,6 @@ import type { TabName } from './types';
 export default function App() {
   const profile = useProfile();
   const refreshAll = useAppStore((state) => state.refreshAll);
-  const [showWelcome, setShowWelcome] = useState(true);
   const [activeTab, setActiveTab] = useState<TabName>('today');
   const [showSettings, setShowSettings] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -23,10 +22,45 @@ export default function App() {
   // Navigation state
   const hasSeenWelcome = localStorage.getItem('has_seen_welcome') === 'true';
 
+  // DEBUG: Add a global reset function you can call from console
+  useEffect(() => {
+    (window as any).resetApp = () => {
+      console.log('🔄 Resetting app...');
+
+      // Clear localStorage
+      localStorage.clear();
+      console.log('✅ Cleared localStorage');
+
+      // Clear all cookies more aggressively
+      const cookies = document.cookie.split(";");
+      console.log('🍪 Found cookies:', cookies);
+
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i];
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+
+        // Clear cookie for all possible paths and domains
+        document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+        document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=' + window.location.hostname;
+        document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.' + window.location.hostname;
+
+        console.log('🗑️  Deleted cookie:', name);
+      }
+
+      console.log('✅ All cleared! Reloading...');
+      setTimeout(() => window.location.reload(), 100);
+    };
+    console.log('💡 TIP: Run resetApp() in console to start fresh!');
+  }, []);
+
   // Check authentication status on mount
   useEffect(() => {
+    console.log('🔍 Auth check useEffect - hasSeenWelcome:', hasSeenWelcome);
     if (hasSeenWelcome) {
+      console.log('📡 Calling checkAuth()...');
       checkAuth().then((authenticated) => {
+        console.log('✅ checkAuth result:', authenticated);
         setIsAuthenticated(authenticated);
       });
     }
@@ -41,9 +75,12 @@ export default function App() {
   }, [profile, hasSeenWelcome, refreshAll]);
 
   function handleGetStarted() {
+    console.log('🚀 handleGetStarted called');
     // Set flag in localStorage
     localStorage.setItem('has_seen_welcome', 'true');
+    console.log('✅ Set has_seen_welcome flag');
     // Redirect IMMEDIATELY to OAuth - don't wait for state updates
+    console.log('🔄 Redirecting to /api/auth/start');
     window.location.href = '/api/auth/start';
   }
 
@@ -53,12 +90,14 @@ export default function App() {
   }
 
   // Show welcome screen if first time
-  if (!hasSeenWelcome && showWelcome) {
+  if (!hasSeenWelcome) {
+    console.log('📺 Rendering: WelcomeScreen');
     return <WelcomeScreen onGetStarted={handleGetStarted} />;
   }
 
   // If user has seen welcome but we're still checking auth, show loading
   if (hasSeenWelcome && isAuthenticated === null) {
+    console.log('⏳ Rendering: Checking authentication... (isAuthenticated=null)');
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -70,6 +109,7 @@ export default function App() {
 
   // If not authenticated, redirect to OAuth
   if (hasSeenWelcome && isAuthenticated === false) {
+    console.log('🔐 Not authenticated! Redirecting to /api/auth/start');
     window.location.href = '/api/auth/start';
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -82,11 +122,13 @@ export default function App() {
 
   // Show onboarding if authenticated but no profile
   if (isAuthenticated && !profile) {
+    console.log('📝 Rendering: OnboardingScreen (authenticated but no profile)');
     return <OnboardingScreen onComplete={handleOnboardingComplete} />;
   }
 
   // If no profile and not sure about auth status, don't show anything yet
   if (!profile) {
+    console.log('⏳ Rendering: Loading... (no profile, auth status:', isAuthenticated, ')');
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -95,6 +137,8 @@ export default function App() {
       </div>
     );
   }
+
+  console.log('🏠 Rendering: Main App');
 
   // Main app
   const tabTitles: Record<TabName, { title: string; subtitle?: string }> = {
