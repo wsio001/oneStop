@@ -255,7 +255,7 @@ export default function ProfileForm({
           </label>
           <div className="space-y-2">
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Display name</label>
+              <label className="block text-xs text-gray-600 mb-1">Name</label>
               <input
                 type="text"
                 value={formData.selfName}
@@ -268,7 +268,7 @@ export default function ProfileForm({
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Also known as</label>
+              <label className="block text-xs text-gray-600 mb-1">How you've been referred to on this calendar</label>
               <input
                 type="text"
                 value={formData.selfAliases}

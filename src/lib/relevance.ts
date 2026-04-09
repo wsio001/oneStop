@@ -5,39 +5,82 @@ function normalize(s: string): string[] {
     .toLowerCase()
     .replace(/[.,;:()\/]/g, ' ')
     .split(/\s+/)
-    .filter((t) => t.length > 1);
+    .filter((t) => t.length > 0);
 }
+
+type ParsedName = {
+  firstName: string;
+  lastName: string;
+  middleTokens: string[];
+  allTokens: string[];
+  fullText: string;
+};
 
 type TokenizedPerson = {
   display_name: string;
-  tokens: Set<string>;
+  parsedName: ParsedName;
+  nicknames: string[]; // Exact nickname strings (not tokenized)
   kind: 'self' | 'spouse' | 'dependent';
 };
 
 const SELF_MATCH_COLUMNS = ['in_charge', 'helpers', 'childcare', 'food', 'notes', 'group'];
 const DEPENDENT_MATCH_COLUMNS = ['childcare', 'notes', 'event_name', 'group'];
 
+/**
+ * Parse a name into first, last, and middle components
+ * "Jessica M Sio" -> { firstName: "jessica", lastName: "sio", middleTokens: ["m"], ... }
+ * "Daniel Kim" -> { firstName: "daniel", lastName: "kim", middleTokens: [], ... }
+ * "DK" -> { firstName: "dk", lastName: "dk", middleTokens: [], ... } (single token treated as both)
+ */
+function parseName(name: string): ParsedName {
+  const tokens = normalize(name);
+
+  if (tokens.length === 0) {
+    return { firstName: '', lastName: '', middleTokens: [], allTokens: [], fullText: name.toLowerCase() };
+  }
+
+  if (tokens.length === 1) {
+    // Single token (like "DK") - treat as both first and last
+    return {
+      firstName: tokens[0],
+      lastName: tokens[0],
+      middleTokens: [],
+      allTokens: tokens,
+      fullText: name.toLowerCase(),
+    };
+  }
+
+  // Multiple tokens: first, middle(s), last
+  return {
+    firstName: tokens[0],
+    lastName: tokens[tokens.length - 1],
+    middleTokens: tokens.slice(1, -1),
+    allTokens: tokens,
+    fullText: name.toLowerCase(),
+  };
+}
+
 function tokenizeMembership(membership: Membership): TokenizedPerson[] {
   const people: TokenizedPerson[] = [];
 
   // Self
-  const selfTokens = new Set(
-    normalize([membership.self.display_name, ...membership.self.aliases].join(' '))
-  );
+  const selfParsedName = parseName(membership.self.display_name);
+  const selfNicknames = membership.self.aliases.map(a => a.toLowerCase());
   people.push({
     display_name: membership.self.display_name,
-    tokens: selfTokens,
+    parsedName: selfParsedName,
+    nicknames: selfNicknames,
     kind: 'self',
   });
 
   // Spouse (only if show_spouse_events is true)
   if (membership.spouse && membership.show_spouse_events) {
-    const spouseTokens = new Set(
-      normalize([membership.spouse.display_name, ...membership.spouse.aliases].join(' '))
-    );
+    const spouseParsedName = parseName(membership.spouse.display_name);
+    const spouseNicknames = membership.spouse.aliases.map(a => a.toLowerCase());
     people.push({
       display_name: membership.spouse.display_name,
-      tokens: spouseTokens,
+      parsedName: spouseParsedName,
+      nicknames: spouseNicknames,
       kind: 'spouse',
     });
   }
@@ -45,12 +88,12 @@ function tokenizeMembership(membership: Membership): TokenizedPerson[] {
   // Dependents (only if show_kids_events is true)
   if (membership.show_kids_events) {
     membership.dependents.forEach((dep) => {
-      const depTokens = new Set(
-        normalize([dep.display_name, ...dep.aliases].join(' '))
-      );
+      const depParsedName = parseName(dep.display_name);
+      const depNicknames = dep.aliases.map(a => a.toLowerCase());
       people.push({
         display_name: dep.display_name,
-        tokens: depTokens,
+        parsedName: depParsedName,
+        nicknames: depNicknames,
         kind: 'dependent',
       });
     });
@@ -59,13 +102,79 @@ function tokenizeMembership(membership: Membership): TokenizedPerson[] {
   return people;
 }
 
-function checkMatch(person: TokenizedPerson, cellValue: string): boolean {
+/**
+ * Enhanced matching algorithm with last name anchor
+ *
+ * Rules:
+ * 1. Exact nickname match (case-insensitive) -> always matches
+ * 2. For multi-token names:
+ *    - Last name (or initial) MUST be present in cell
+ *    - First name OR middle name must be present
+ * 3. Handles plural forms: "Kims", "Sios" -> matches "Kim", "Sio"
+ * 4. Returns the matched text from the cell (for badge display)
+ */
+function checkMatch(person: TokenizedPerson, cellValue: string): { matched: boolean; matchedText: string } {
+  const cellLower = cellValue.toLowerCase();
   const cellTokens = normalize(cellValue);
-  return cellTokens.some((token) => person.tokens.has(token));
+
+  // Rule 1: Check for exact nickname match
+  for (const nickname of person.nicknames) {
+    if (cellLower === nickname || cellTokens.includes(nickname)) {
+      return { matched: true, matchedText: cellValue.trim() };
+    }
+  }
+
+  // Rule 2: Check parsed name matching (requires last name)
+  const { firstName, lastName, middleTokens, allTokens } = person.parsedName;
+
+  // Check if last name appears (exact or as substring for plurals like "Kims")
+  const lastNameMatches = cellTokens.some(token =>
+    token === lastName ||
+    token.startsWith(lastName) || // "kims" contains "kim"
+    token === lastName.charAt(0) // "k" matches "kim"
+  );
+
+  if (!lastNameMatches) {
+    return { matched: false, matchedText: '' };
+  }
+
+  // Check if first name or any middle name/initial appears
+  const firstOrMiddleMatches = cellTokens.some(token =>
+    token === firstName ||
+    token === firstName.charAt(0) || // Initial
+    middleTokens.some(mid => token === mid || token === mid.charAt(0))
+  );
+
+  if (firstOrMiddleMatches) {
+    return { matched: true, matchedText: cellValue.trim() };
+  }
+
+  // Rule 3: Last name only (for family references like "Sios", "All the Kims")
+  // If we got here, last name matched but no first/middle
+  // This catches cases like "Sios" or "Kims" referring to the whole family
+  if (lastNameMatches && allTokens.length > 1) {
+    // Only match if it looks like a family reference (not just a different person with same last name)
+    // E.g., "Sios" matches, but "John Sio" doesn't match "Jessica Sio"
+    const hasOtherFirstName = cellTokens.some(token =>
+      token !== firstName &&
+      token !== firstName.charAt(0) &&
+      !middleTokens.some(mid => token === mid) &&
+      token !== lastName &&
+      token.length > 1 &&
+      !['the', 'all', 'and', 'or', 'family'].includes(token)
+    );
+
+    if (!hasOtherFirstName) {
+      return { matched: true, matchedText: cellValue.trim() };
+    }
+  }
+
+  return { matched: false, matchedText: '' };
 }
 
 export function computeRelevance(event: Event, profile: UserProfile): Role[] {
   const roles: Role[] = [];
+  const seenRoles = new Map<string, Role>(); // Track roles to deduplicate family matches
 
   profile.memberships.forEach((membership) => {
     const people = tokenizeMembership(membership);
@@ -76,47 +185,83 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
 
       // Check in_charge
       if (columnsToCheck.includes('in_charge')) {
-        const inChargeText = event.in_charge.join(' ');
-        if (checkMatch(person, inChargeText)) {
-          roles.push({ type: 'LEAD', subject: person.display_name, kind: person.kind });
+        const inChargeText = event.in_charge.join(', ');
+        const match = checkMatch(person, inChargeText);
+        if (match.matched) {
+          const roleKey = `LEAD:${match.matchedText}`;
+          if (!seenRoles.has(roleKey)) {
+            const role = { type: 'LEAD' as const, subject: match.matchedText, kind: person.kind };
+            roles.push(role);
+            seenRoles.set(roleKey, role);
+          }
         }
       }
 
       // Check helpers
       if (columnsToCheck.includes('helpers')) {
-        const helpersText = event.helpers.join(' ');
-        if (checkMatch(person, helpersText)) {
-          roles.push({ type: 'HELPER', subject: person.display_name, kind: person.kind });
+        const helpersText = event.helpers.join(', ');
+        const match = checkMatch(person, helpersText);
+        if (match.matched) {
+          const roleKey = `HELPER:${match.matchedText}`;
+          if (!seenRoles.has(roleKey)) {
+            const role = { type: 'HELPER' as const, subject: match.matchedText, kind: person.kind };
+            roles.push(role);
+            seenRoles.set(roleKey, role);
+          }
         }
       }
 
       // Check childcare
       if (columnsToCheck.includes('childcare')) {
-        const childcareText = event.childcare.join(' ');
-        if (checkMatch(person, childcareText)) {
-          roles.push({ type: 'CHILDCARE', subject: person.display_name, kind: person.kind });
+        const childcareText = event.childcare.join(', ');
+        const match = checkMatch(person, childcareText);
+        if (match.matched) {
+          const roleKey = `CHILDCARE:${match.matchedText}`;
+          if (!seenRoles.has(roleKey)) {
+            const role = { type: 'CHILDCARE' as const, subject: match.matchedText, kind: person.kind };
+            roles.push(role);
+            seenRoles.set(roleKey, role);
+          }
         }
       }
 
       // Check food
       if (columnsToCheck.includes('food')) {
-        const foodText = event.food.join(' ');
-        if (checkMatch(person, foodText)) {
-          roles.push({ type: 'FOOD', subject: person.display_name, kind: person.kind });
+        const foodText = event.food.join(', ');
+        const match = checkMatch(person, foodText);
+        if (match.matched) {
+          const roleKey = `FOOD:${match.matchedText}`;
+          if (!seenRoles.has(roleKey)) {
+            const role = { type: 'FOOD' as const, subject: match.matchedText, kind: person.kind };
+            roles.push(role);
+            seenRoles.set(roleKey, role);
+          }
         }
       }
 
       // Check notes
       if (columnsToCheck.includes('notes') && event.notes) {
-        if (checkMatch(person, event.notes)) {
-          roles.push({ type: 'MENTIONED', subject: person.display_name, kind: person.kind });
+        const match = checkMatch(person, event.notes);
+        if (match.matched) {
+          const roleKey = `MENTIONED:${match.matchedText}`;
+          if (!seenRoles.has(roleKey)) {
+            const role = { type: 'MENTIONED' as const, subject: match.matchedText, kind: person.kind };
+            roles.push(role);
+            seenRoles.set(roleKey, role);
+          }
         }
       }
 
       // Check event_name (dependents only)
       if (columnsToCheck.includes('event_name')) {
-        if (checkMatch(person, event.event_name)) {
-          roles.push({ type: 'MENTIONED', subject: person.display_name, kind: person.kind });
+        const match = checkMatch(person, event.event_name);
+        if (match.matched) {
+          const roleKey = `MENTIONED:${match.matchedText}`;
+          if (!seenRoles.has(roleKey)) {
+            const role = { type: 'MENTIONED' as const, subject: match.matchedText, kind: person.kind };
+            roles.push(role);
+            seenRoles.set(roleKey, role);
+          }
         }
       }
     });

@@ -66,11 +66,13 @@ export default function EventCard({ event, roles }: EventCardProps) {
   // Check if using home address
   const hasAddressMatch = roles.some(r => r.type === 'MENTIONED' && r.subject === 'Your address');
 
-  // Generate primary badge text (non-address role)
+  // Generate primary badge text
+  // For GROUP type: show just the group name
+  // For other types: show "SUBJECT: TYPE" format (e.g., "SIOS: LEAD", "ALL THE KIMS: FOOD")
   const primaryBadge = topNonAddressRole
     ? topNonAddressRole.type === 'GROUP'
       ? topNonAddressRole.subject.toUpperCase()
-      : `${topNonAddressRole.kind === 'self' ? 'YOU' : topNonAddressRole.subject.toUpperCase()}: ${topNonAddressRole.type}`
+      : `${topNonAddressRole.subject.toUpperCase()}: ${topNonAddressRole.type}`
     : '';
 
   return (
