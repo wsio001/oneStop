@@ -140,20 +140,6 @@ export default function App() {
 
   console.log('🏠 Rendering: Main App');
 
-  // Set data attribute on #root to enable scroll containment
-  useEffect(() => {
-    const root = document.getElementById('root');
-    if (root) {
-      root.setAttribute('data-main-app', 'true');
-    }
-    return () => {
-      const root = document.getElementById('root');
-      if (root) {
-        root.removeAttribute('data-main-app');
-      }
-    };
-  }, []);
-
   // Main app
   const tabTitles: Record<TabName, { title: string; subtitle?: string }> = {
     today: {

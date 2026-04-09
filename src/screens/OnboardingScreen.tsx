@@ -7,12 +7,6 @@ type OnboardingScreenProps = {
 };
 
 export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
-  console.log('🎨 OnboardingScreen: Checking #root attributes');
-  const root = document.getElementById('root');
-  console.log('🎨 #root data-main-app:', root?.getAttribute('data-main-app'));
-  console.log('🎨 #root computed height:', root ? getComputedStyle(root).height : 'N/A');
-  console.log('🎨 #root computed overflow:', root ? getComputedStyle(root).overflow : 'N/A');
-
   function handleSubmit(formData: any) {
     const homeAddresses = formData.homeAddresses
       .split(',')
