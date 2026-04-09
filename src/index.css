@@ -18,8 +18,8 @@
     min-height: 100%;
   }
 
-  /* Only apply scroll containment when #root is using the main app layout */
-  #root:has(.main-app-container) {
+  /* Only apply scroll containment when main app is active */
+  #root[data-main-app="true"] {
     height: 100vh;
     height: 100dvh; /* Use dynamic viewport height for mobile */
     overflow: hidden;
