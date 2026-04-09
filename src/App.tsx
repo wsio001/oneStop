@@ -167,7 +167,7 @@ export default function App() {
       </div>
 
       {/* Scrollable Content Area */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-16">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-24">
         {activeTab === 'today' && <TodayTab profile={profile} />}
         {activeTab === 'weekly' && <WeeklyTab />}
         {activeTab === 'bulletin' && <BulletinTab />}
