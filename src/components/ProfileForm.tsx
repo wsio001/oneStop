@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight, X } from 'lucide-react';
 import Toggle from './Toggle';
-import type { UserProfile, Person } from '../types';
+import { fetchAvailableGroups } from '../lib/api';
+import type { UserProfile } from '../types';
 
 type ProfileFormData = {
   homeAddresses: string;
@@ -28,13 +29,6 @@ type ProfileFormProps = {
 
 const AVAILABLE_CITIES = [{ id: 'irvine', name: 'Irvine' }];
 
-const AVAILABLE_GROUPS = [
-  { id: 'youth', name: 'Youth', color: 'purple' },
-  { id: 'worship', name: 'Worship', color: 'emerald' },
-  { id: 'kids', name: 'Kids', color: 'orange' },
-  { id: 'parents', name: 'Parents', color: 'purple' },
-];
-
 export default function ProfileForm({
   initialValue,
   onSubmit,
@@ -42,6 +36,9 @@ export default function ProfileForm({
   showHeader = false,
   onCancel,
 }: ProfileFormProps) {
+  const [availableGroups, setAvailableGroups] = useState<string[]>([]);
+  const [loadingGroups, setLoadingGroups] = useState(false);
+
   const [formData, setFormData] = useState<ProfileFormData>(() => {
     if (!initialValue || initialValue.memberships.length === 0) {
       return {
@@ -81,6 +78,24 @@ export default function ProfileForm({
   });
 
   const [isDirty, setIsDirty] = useState(false);
+
+  // Fetch available groups when city is selected
+  useEffect(() => {
+    if (formData.city === 'irvine') {
+      setLoadingGroups(true);
+      fetchAvailableGroups()
+        .then((groups) => {
+          setAvailableGroups(groups);
+        })
+        .catch((error) => {
+          console.error('Failed to fetch groups:', error);
+          setAvailableGroups([]);
+        })
+        .finally(() => {
+          setLoadingGroups(false);
+        });
+    }
+  }, [formData.city]);
 
   useEffect(() => {
     const initialJson = JSON.stringify(getInitialFormData());
@@ -435,25 +450,31 @@ export default function ProfileForm({
           <label className="block text-[10px] text-gray-500 uppercase tracking-wider mb-2">
             Groups
           </label>
-          <div className="flex flex-wrap gap-2">
-            {AVAILABLE_GROUPS.map((group) => {
-              const isSelected = formData.groups.includes(group.id);
-              return (
-                <button
-                  key={group.id}
-                  type="button"
-                  onClick={() => toggleGroup(group.id)}
-                  className={`text-[10px] px-3 py-1 rounded-full font-medium ${
-                    isSelected
-                      ? 'bg-purple-200 text-purple-900'
-                      : 'bg-gray-100 text-gray-600'
-                  }`}
-                >
-                  {group.name} {isSelected && '✓'}
-                </button>
-              );
-            })}
-          </div>
+          {loadingGroups ? (
+            <div className="text-xs text-gray-500">Loading groups...</div>
+          ) : availableGroups.length === 0 ? (
+            <div className="text-xs text-gray-500">No groups available</div>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {availableGroups.map((group) => {
+                const isSelected = formData.groups.includes(group);
+                return (
+                  <button
+                    key={group}
+                    type="button"
+                    onClick={() => toggleGroup(group)}
+                    className={`text-[10px] px-3 py-1 rounded-full font-medium ${
+                      isSelected
+                        ? 'bg-purple-200 text-purple-900'
+                        : 'bg-gray-100 text-gray-600'
+                    }`}
+                  >
+                    {group} {isSelected && '✓'}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Submit Button */}

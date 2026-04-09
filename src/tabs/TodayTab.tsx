@@ -3,7 +3,7 @@ import EventCard from '../components/EventCard';
 import EventCardSlim from '../components/EventCardSlim';
 import { filterRelevantEvents } from '../lib/relevance';
 import { useAppStore } from '../store/appStore';
-import type { UserProfile, Event } from '../types';
+import type { UserProfile } from '../types';
 
 type TodayTabProps = {
   profile: UserProfile;
@@ -35,12 +35,6 @@ export default function TodayTab({ profile }: TodayTabProps) {
     if (!membership) return true;
     return membership.show_spouse_events || membership.show_kids_events;
   }, [profile.memberships]);
-
-  const todayDate = new Date().toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  });
 
   // Loading state
   if (syncing && todayEvents.length === 0) {

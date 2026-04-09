@@ -46,3 +46,19 @@ export async function fetchSheetData(tabs: string[]): Promise<Record<string, str
 
   return response.json();
 }
+
+export async function fetchAvailableGroups(): Promise<string[]> {
+  const response = await fetch('/api/sheets/groups');
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      // Not authenticated, redirect to auth
+      window.location.href = '/api/auth/start';
+      throw new Error('Not authenticated');
+    }
+    throw new Error('Failed to fetch available groups');
+  }
+
+  const data = await response.json();
+  return data.groups || [];
+}

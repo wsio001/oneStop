@@ -35,3 +35,4 @@ PHASE2_SETUP.md
 
 # Vercel
 .vercel
+.env*.local

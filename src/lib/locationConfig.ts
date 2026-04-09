@@ -4,7 +4,7 @@ export const IRVINE_CONFIG: LocationConfig = {
   location_id: 'irvine',
   display_name: 'Irvine',
   region_id: 'west_coast',
-  sheet_id: process.env.IRVINE_SHEET_ID || '',
+  sheet_id: '', // Not needed on client - API routes use process.env.IRVINE_SHEET_ID
   timezone: 'America/Los_Angeles',
   tab_discovery: {
     pattern: '^(\\d{1,2})/(\\d{1,2})\\s+(Mon|Tue|Wed|Thu|Fri|Sat|Sun)$',

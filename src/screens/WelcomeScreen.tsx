@@ -30,14 +30,14 @@ export default function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
               <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
                 <span className="text-sm font-medium text-purple-900">1</span>
               </div>
-              <span className="text-base text-gray-900">Add your name and family</span>
+              <span className="text-base text-gray-900">Sign in with Google to access Acts2network</span>
             </div>
 
             <div className="flex items-center gap-4 text-left">
               <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
                 <span className="text-sm font-medium text-purple-900">2</span>
               </div>
-              <span className="text-base text-gray-900">Sign in with Google</span>
+              <span className="text-base text-gray-900">Add your name and family</span>
             </div>
 
             <div className="flex items-center gap-4 text-left">
@@ -53,7 +53,7 @@ export default function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
             onClick={onGetStarted}
             className="w-full bg-purple-500 hover:bg-purple-600 text-white font-medium text-base py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors"
           >
-            Get started
+            Sign Into Acts2network
             <ArrowRight className="w-5 h-5" />
           </button>
         </div>
