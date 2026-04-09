@@ -14,7 +14,7 @@ export default function Header({ title, subtitle, profile, onProfileClick }: Hea
     : 'bg-purple-200 text-purple-900';
 
   return (
-    <header className="sticky top-0 z-10 px-4 pt-4 pb-4 bg-white border-b border-gray-200 shadow-sm">
+    <header className="px-4 pt-4 pb-4 bg-white border-b border-gray-200">
       <div className="flex items-center justify-between">
         <div className="flex flex-col">
           <h1 className="text-base font-medium text-gray-900">{title}</h1>
