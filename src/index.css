@@ -11,16 +11,19 @@
       sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Prevent overscroll bounce on iOS */
-    overflow: hidden;
     height: 100%;
-    overscroll-behavior: none;
   }
 
   #root {
+    min-height: 100%;
+  }
+
+  /* Only apply scroll containment when #root is using the main app layout */
+  #root:has(.main-app-container) {
     height: 100vh;
     height: 100dvh; /* Use dynamic viewport height for mobile */
     overflow: hidden;
+    overscroll-behavior: none;
   }
 }
 

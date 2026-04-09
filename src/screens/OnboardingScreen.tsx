@@ -63,7 +63,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-6 overflow-y-auto">
+    <div className="min-h-screen bg-gray-50 py-8 px-6">
       <div className="w-full max-w-md mx-auto bg-white rounded-3xl shadow-sm border border-gray-200 p-6">
         <ProfileForm
           initialValue={null}

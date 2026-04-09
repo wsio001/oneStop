@@ -155,7 +155,7 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
+    <div className="main-app-container h-screen flex flex-col bg-gray-50 overflow-hidden">
       {/* Fixed Header */}
       <div className="flex-shrink-0">
         <Header
