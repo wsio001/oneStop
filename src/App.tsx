@@ -155,22 +155,26 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
-      <Header
-        title={tabTitles[activeTab].title}
-        subtitle={tabTitles[activeTab].subtitle}
-        profile={profile}
-        onProfileClick={() => setShowSettings(true)}
-      />
+    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
+      {/* Fixed Header */}
+      <div className="flex-shrink-0">
+        <Header
+          title={tabTitles[activeTab].title}
+          subtitle={tabTitles[activeTab].subtitle}
+          profile={profile}
+          onProfileClick={() => setShowSettings(true)}
+        />
+      </div>
 
-      <div className="flex-1 overflow-y-auto pb-24">
+      {/* Scrollable Content Area */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
         {activeTab === 'today' && <TodayTab profile={profile} />}
         {activeTab === 'weekly' && <WeeklyTab />}
         {activeTab === 'bulletin' && <BulletinTab />}
       </div>
 
-      {/* Floating TabBar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+      {/* Fixed TabBar */}
+      <div className="flex-shrink-0">
         <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
 

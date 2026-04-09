@@ -60,7 +60,7 @@ export default function TodayTab({ profile }: TodayTabProps) {
   }
 
   return (
-    <div className="px-4 py-4">
+    <div className="px-4 pt-4 pb-6">
       {/* Focus Toggle */}
       <div className="flex bg-gray-100 rounded-full p-0.5 mb-3 text-sm">
         <button
