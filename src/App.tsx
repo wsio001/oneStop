@@ -163,13 +163,16 @@ export default function App() {
         onProfileClick={() => setShowSettings(true)}
       />
 
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-y-auto pb-20">
         {activeTab === 'today' && <TodayTab profile={profile} />}
         {activeTab === 'weekly' && <WeeklyTab />}
         {activeTab === 'bulletin' && <BulletinTab />}
       </div>
 
-      <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+      {/* Floating TabBar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+        <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+      </div>
 
       {showSettings && (
         <SettingsModal

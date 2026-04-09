@@ -74,17 +74,17 @@ export default function EventCard({ event, roles }: EventCardProps) {
     : '';
 
   return (
-    <div className={`border-[1.5px] ${roleColor.border} ${roleColor.bg} rounded-lg p-3 mb-2.5`}>
+    <div className={`border-[1.5px] ${roleColor.border} ${roleColor.bg} rounded-lg p-4 mb-3`}>
       {/* Header: Time + Group + Badges */}
-      <div className="flex items-center justify-between mb-1.5">
-        <div className={`text-[11px] font-medium ${roleColor.text}`}>
+      <div className="flex items-center justify-between mb-2">
+        <div className={`text-sm font-medium ${roleColor.text}`}>
           {event.time} · {event.group || 'General'}
         </div>
         <div className="flex items-center gap-1">
           {/* Primary role badge */}
           {primaryBadge && (
             <div
-              className={`${roleColor.badge} text-white text-[9px] px-2 py-0.5 rounded-full font-semibold uppercase`}
+              className={`${roleColor.badge} text-white text-[10px] px-2.5 py-1 rounded-full font-semibold uppercase`}
             >
               {primaryBadge}
             </div>
@@ -92,7 +92,7 @@ export default function EventCard({ event, roles }: EventCardProps) {
           {/* Address match badge */}
           {hasAddressMatch && (
             <div
-              className="bg-amber-700 text-white text-[9px] px-2 py-0.5 rounded-full font-semibold uppercase"
+              className="bg-amber-700 text-white text-[10px] px-2.5 py-1 rounded-full font-semibold uppercase"
             >
               USING YOUR HOME
             </div>
@@ -101,13 +101,13 @@ export default function EventCard({ event, roles }: EventCardProps) {
       </div>
 
       {/* Event Name */}
-      <div className={`text-base font-semibold ${roleColor.text} mb-2`}>
+      <div className={`text-lg font-bold ${roleColor.text} mb-3`}>
         {event.event_name}
       </div>
 
       {/* Location */}
       {event.location && (
-        <div className={`text-[12px] ${roleColor.text} mb-1 flex items-center gap-1`}>
+        <div className={`text-sm ${roleColor.text} mb-2 flex items-center gap-1.5`}>
           <span>📍</span>
           <span>{event.location}</span>
         </div>
@@ -115,7 +115,7 @@ export default function EventCard({ event, roles }: EventCardProps) {
 
       {/* Lead & Helpers */}
       {(event.in_charge.length > 0 || event.helpers.length > 0) && (
-        <div className={`text-[12px] ${roleColor.text} mb-1 flex items-start gap-1`}>
+        <div className={`text-sm ${roleColor.text} mb-2 flex items-start gap-1.5`}>
           <span>👤</span>
           <span>
             {event.in_charge.length > 0 && (
@@ -131,7 +131,7 @@ export default function EventCard({ event, roles }: EventCardProps) {
 
       {/* Childcare */}
       {event.childcare.length > 0 && (
-        <div className={`text-[12px] ${roleColor.text} mb-1 flex items-center gap-1`}>
+        <div className={`text-sm ${roleColor.text} mb-2 flex items-center gap-1.5`}>
           <span>😊</span>
           <span>Childcare: {event.childcare.join(', ')}</span>
         </div>
@@ -139,7 +139,7 @@ export default function EventCard({ event, roles }: EventCardProps) {
 
       {/* Food/Snacks */}
       {event.food.length > 0 && (
-        <div className={`text-[12px] ${roleColor.text} mb-1 flex items-center gap-1`}>
+        <div className={`text-sm ${roleColor.text} mb-2 flex items-center gap-1.5`}>
           <span>🍔</span>
           <span>Snacks: {event.food.join(', ')}</span>
         </div>
@@ -147,7 +147,7 @@ export default function EventCard({ event, roles }: EventCardProps) {
 
       {/* Notes */}
       {event.notes && (
-        <div className={`text-[11px] ${roleColor.text} mt-2 pt-2 border-t border-gray-200 italic`}>
+        <div className={`text-sm ${roleColor.text} mt-3 pt-3 border-t border-gray-200 italic`}>
           {event.notes}
         </div>
       )}

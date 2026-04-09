@@ -52,20 +52,20 @@ export default function TodayTab({ profile }: TodayTabProps) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-sm text-gray-500 mb-2">Loading schedule...</div>
-          <div className="text-xs text-gray-400">Fetching from Google Sheets</div>
+          <div className="text-base text-gray-500 mb-2">Loading schedule...</div>
+          <div className="text-sm text-gray-400">Fetching from Google Sheets</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-4">
+    <div className="px-4 py-4">
       {/* Focus Toggle */}
-      <div className="flex bg-gray-100 rounded-full p-0.5 mb-3 text-[10px]">
+      <div className="flex bg-gray-100 rounded-full p-0.5 mb-3 text-sm">
         <button
           onClick={() => setFocusMode('my')}
-          className={`flex-1 text-center py-1.5 rounded-full font-medium transition-colors ${
+          className={`flex-1 text-center py-2 rounded-full font-medium transition-colors ${
             focusMode === 'my' ? 'bg-white shadow-sm' : 'text-gray-600'
           }`}
         >
@@ -73,7 +73,7 @@ export default function TodayTab({ profile }: TodayTabProps) {
         </button>
         <button
           onClick={() => setFocusMode('all')}
-          className={`flex-1 text-center py-1.5 rounded-full font-medium transition-colors ${
+          className={`flex-1 text-center py-2 rounded-full font-medium transition-colors ${
             focusMode === 'all' ? 'bg-white shadow-sm' : 'text-gray-600'
           }`}
         >
@@ -92,8 +92,8 @@ export default function TodayTab({ profile }: TodayTabProps) {
             </div>
           ) : (
             <div className="text-center py-12 text-gray-500">
-              <p className="text-sm mb-1">No relevant events today</p>
-              <p className="text-xs text-gray-400">
+              <p className="text-base mb-2">No relevant events today</p>
+              <p className="text-sm text-gray-400">
                 Check the "All" tab to see other scheduled events
               </p>
             </div>
@@ -115,7 +115,7 @@ export default function TodayTab({ profile }: TodayTabProps) {
             </div>
           ) : (
             <div className="text-center py-12 text-gray-500">
-              <p className="text-sm mb-1">No events today</p>
+              <p className="text-base mb-1">No events today</p>
             </div>
           )}
         </>
@@ -123,8 +123,8 @@ export default function TodayTab({ profile }: TodayTabProps) {
 
       {/* Family Events Hidden Banner */}
       {!showingFamilyEvents && (
-        <div className="mt-3 p-2 bg-gray-100 rounded-lg text-center">
-          <p className="text-[9px] text-gray-600">
+        <div className="mt-3 p-3 bg-gray-100 rounded-lg text-center">
+          <p className="text-xs text-gray-600">
             Family events are hidden · <span className="font-medium">Settings to enable</span>
           </p>
         </div>
