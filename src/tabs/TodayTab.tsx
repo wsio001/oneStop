@@ -50,7 +50,7 @@ export default function TodayTab({ profile }: TodayTabProps) {
   // Loading state
   if (syncing && todayEvents.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center">
+      <div className="fixed inset-0 flex items-center justify-center bg-gray-50 z-20">
         <div className="text-center">
           <div className="text-base text-gray-500 mb-2">Loading schedule...</div>
           <div className="text-sm text-gray-400">Fetching from Google Sheets</div>

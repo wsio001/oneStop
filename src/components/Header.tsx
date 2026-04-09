@@ -15,8 +15,8 @@ export default function Header({ title, subtitle, profile, onProfileClick }: Hea
 
   return (
     <header className="sticky top-0 z-10 px-4 pt-4 pb-4 bg-white border-b border-gray-200 shadow-sm">
-      <div className="flex items-start justify-between">
-        <div className="min-h-[40px] flex flex-col justify-center">
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col">
           <h1 className="text-base font-medium text-gray-900">{title}</h1>
           {subtitle && (
             <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>
@@ -24,7 +24,7 @@ export default function Header({ title, subtitle, profile, onProfileClick }: Hea
         </div>
         <button
           onClick={onProfileClick}
-          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${groupColor}`}
+          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${groupColor} flex-shrink-0`}
         >
           {firstLetter}
         </button>
