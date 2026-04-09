@@ -15,10 +15,12 @@ export default function Header({ title, subtitle, profile, onProfileClick }: Hea
 
   return (
     <header className="px-4 pt-4 pb-4 bg-white border-b border-gray-200">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-start justify-between">
+        <div className="min-h-[40px] flex flex-col justify-center">
           <h1 className="text-base font-medium text-gray-900">{title}</h1>
-          {subtitle && <p className="text-[10px] text-gray-500">{subtitle}</p>}
+          {subtitle && (
+            <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>
+          )}
         </div>
         <button
           onClick={onProfileClick}
