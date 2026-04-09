@@ -16,10 +16,12 @@ export default function Header({ title, subtitle, profile, onProfileClick }: Hea
   return (
     <header className="px-4 pt-4 pb-4 bg-white border-b border-gray-200">
       <div className="flex items-center justify-between">
-        <div className="flex flex-col">
+        <div className="flex flex-col h-10 justify-center">
           <h1 className="text-base font-medium text-gray-900">{title}</h1>
-          {subtitle && (
+          {subtitle ? (
             <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>
+          ) : (
+            <div className="h-[18px]" />
           )}
         </div>
         <button
