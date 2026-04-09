@@ -192,12 +192,12 @@ export default function ProfileForm({
           >
             <X className="w-6 h-6" />
           </button>
-          <h2 className="text-base font-medium text-gray-900">Profile</h2>
+          <h2 className="text-lg font-medium text-gray-900">Profile</h2>
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className={`text-sm font-medium ${
+            className={`text-base font-medium ${
               canSubmit ? 'text-purple-700 hover:text-purple-800' : 'text-gray-400'
             }`}
           >
@@ -208,18 +208,18 @@ export default function ProfileForm({
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {!showHeader && (
-          <h2 className="text-lg font-medium text-gray-900">Tell us about you</h2>
+          <h2 className="text-xl font-medium text-gray-900">Tell us about you</h2>
         )}
 
         {/* City */}
         <div>
-          <label className="block text-[10px] text-gray-500 uppercase tracking-wider mb-2">
+          <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
             City
           </label>
           <select
             value={formData.city}
             onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value }))}
-            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
           >
             {AVAILABLE_CITIES.map((city) => (
               <option key={city.id} value={city.id}>
@@ -231,10 +231,10 @@ export default function ProfileForm({
 
         {/* Home Addresses */}
         <div>
-          <label className="block text-[10px] text-gray-500 uppercase tracking-wider mb-1">
+          <label className="block text-xs text-gray-500 uppercase tracking-wider mb-1">
             Home Address
           </label>
-          <p className="text-[9px] text-gray-400 mb-2">
+          <p className="text-[11px] text-gray-400 mb-2">
             How your home is referred to (comma-separated if multiple)
           </p>
           <input
@@ -244,18 +244,18 @@ export default function ProfileForm({
               setFormData((prev) => ({ ...prev, homeAddresses: e.target.value }))
             }
             placeholder="e.g. Goldstone, GS"
-            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
         </div>
 
         {/* You Section */}
         <div>
-          <label className="block text-[10px] text-gray-500 uppercase tracking-wider mb-2">
+          <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
             You
           </label>
           <div className="space-y-2">
             <div>
-              <label className="block text-[11px] text-gray-600 mb-1">Display name</label>
+              <label className="block text-xs text-gray-600 mb-1">Display name</label>
               <input
                 type="text"
                 value={formData.selfName}
@@ -264,11 +264,11 @@ export default function ProfileForm({
                 }
                 required
                 placeholder="John"
-                className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
             <div>
-              <label className="block text-[11px] text-gray-600 mb-1">Also known as</label>
+              <label className="block text-xs text-gray-600 mb-1">Also known as</label>
               <input
                 type="text"
                 value={formData.selfAliases}
@@ -276,7 +276,7 @@ export default function ProfileForm({
                   setFormData((prev) => ({ ...prev, selfAliases: e.target.value }))
                 }
                 placeholder="John Smith, Johnny"
-                className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
           </div>
@@ -289,7 +289,7 @@ export default function ProfileForm({
           }`}
         >
           <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-medium text-gray-900">Married?</label>
+            <label className="text-sm font-medium text-gray-900">Married?</label>
             <Toggle
               enabled={formData.married}
               onChange={(enabled) => {
@@ -307,7 +307,7 @@ export default function ProfileForm({
               <div className="border-t border-purple-300 pt-3 mb-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <label className="text-[11px] text-purple-900">
+                    <label className="text-xs text-purple-900">
                       Show spouse's events too?
                     </label>
                   </div>
@@ -319,7 +319,7 @@ export default function ProfileForm({
                   />
                 </div>
                 {!formData.showSpouseEvents && (
-                  <p className="text-[9px] text-purple-900 mt-1">
+                  <p className="text-[11px] text-purple-900 mt-1">
                     {formData.spouseName
                       ? `${formData.spouseName}'s info is saved but hidden from your feed`
                       : 'You can turn this on later if you change your mind'}
@@ -330,7 +330,7 @@ export default function ProfileForm({
               {formData.showSpouseEvents && (
                 <div className="border-t border-purple-300 pt-3 space-y-2">
                   <div>
-                    <label className="block text-[10px] text-purple-900 mb-1">
+                    <label className="block text-xs text-purple-900 mb-1">
                       Spouse's name
                     </label>
                     <input
@@ -340,7 +340,7 @@ export default function ProfileForm({
                         setFormData((prev) => ({ ...prev, spouseName: e.target.value }))
                       }
                       placeholder="Sarah"
-                      className="w-full bg-white border border-purple-300 rounded-lg px-2.5 py-1.5 text-[11px] focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full bg-white border border-purple-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
                   </div>
                   <input
@@ -350,7 +350,7 @@ export default function ProfileForm({
                       setFormData((prev) => ({ ...prev, spouseAliases: e.target.value }))
                     }
                     placeholder="Sarah Smith, Sarah S."
-                    className="w-full bg-white border border-purple-300 rounded-lg px-2.5 py-1.5 text-[11px] focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full bg-white border border-purple-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
               )}
@@ -365,7 +365,7 @@ export default function ProfileForm({
           }`}
         >
           <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-medium text-gray-900">Have kids?</label>
+            <label className="text-sm font-medium text-gray-900">Have kids?</label>
             <Toggle
               enabled={formData.hasKids}
               onChange={(enabled) => {
@@ -383,7 +383,7 @@ export default function ProfileForm({
             <>
               <div className="border-t border-purple-300 pt-3 mb-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-[11px] text-purple-900">
+                  <label className="text-xs text-purple-900">
                     Show kids' events too?
                   </label>
                   <Toggle
@@ -394,7 +394,7 @@ export default function ProfileForm({
                   />
                 </div>
                 {!formData.showKidsEvents && formData.kids.length > 0 && (
-                  <p className="text-[9px] text-purple-900 mt-1">
+                  <p className="text-[11px] text-purple-900 mt-1">
                     Kids' info is saved but hidden from your feed
                   </p>
                 )}
@@ -413,20 +413,20 @@ export default function ProfileForm({
                           value={kid.name}
                           onChange={(e) => updateKid(index, 'name', e.target.value)}
                           placeholder="Child's name"
-                          className="w-full text-[11px] font-medium text-purple-900 focus:outline-none"
+                          className="w-full text-xs font-medium text-purple-900 focus:outline-none"
                         />
                         <input
                           type="text"
                           value={kid.aliases}
                           onChange={(e) => updateKid(index, 'aliases', e.target.value)}
                           placeholder="Nicknames"
-                          className="w-full text-[9px] text-purple-900 focus:outline-none"
+                          className="w-full text-[11px] text-purple-900 focus:outline-none"
                         />
                       </div>
                       <button
                         type="button"
                         onClick={() => removeKid(index)}
-                        className="text-[11px] text-purple-900 hover:text-purple-700 mt-1"
+                        className="text-xs text-purple-900 hover:text-purple-700 mt-1"
                       >
                         ✕
                       </button>
@@ -435,7 +435,7 @@ export default function ProfileForm({
                   <button
                     type="button"
                     onClick={addKid}
-                    className="w-full border border-dashed border-purple-300 rounded-lg py-1.5 text-[10px] text-purple-900 hover:bg-purple-100"
+                    className="w-full border border-dashed border-purple-300 rounded-lg py-1.5 text-xs text-purple-900 hover:bg-purple-100"
                   >
                     + Add child
                   </button>
@@ -447,13 +447,13 @@ export default function ProfileForm({
 
         {/* Groups */}
         <div>
-          <label className="block text-[10px] text-gray-500 uppercase tracking-wider mb-2">
+          <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
             Groups
           </label>
           {loadingGroups ? (
-            <div className="text-xs text-gray-500">Loading groups...</div>
+            <div className="text-sm text-gray-500">Loading groups...</div>
           ) : availableGroups.length === 0 ? (
-            <div className="text-xs text-gray-500">No groups available</div>
+            <div className="text-sm text-gray-500">No groups available</div>
           ) : (
             <div className="flex flex-wrap gap-2">
               {availableGroups.map((group) => {
@@ -463,7 +463,7 @@ export default function ProfileForm({
                     key={group}
                     type="button"
                     onClick={() => toggleGroup(group)}
-                    className={`text-[10px] px-3 py-1 rounded-full font-medium ${
+                    className={`text-xs px-3 py-1 rounded-full font-medium ${
                       isSelected
                         ? 'bg-purple-200 text-purple-900'
                         : 'bg-gray-100 text-gray-600'
@@ -482,7 +482,7 @@ export default function ProfileForm({
           <button
             type="submit"
             disabled={!canSubmit}
-            className={`w-full py-2.5 rounded-lg font-medium text-xs flex items-center justify-center gap-2 ${
+            className={`w-full py-2.5 rounded-lg font-medium text-sm flex items-center justify-center gap-2 ${
               canSubmit
                 ? 'bg-purple-500 hover:bg-purple-600 text-white'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
