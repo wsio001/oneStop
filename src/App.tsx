@@ -167,14 +167,14 @@ export default function App() {
       </div>
 
       {/* Scrollable Content Area */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-16">
         {activeTab === 'today' && <TodayTab profile={profile} />}
         {activeTab === 'weekly' && <WeeklyTab />}
         {activeTab === 'bulletin' && <BulletinTab />}
       </div>
 
       {/* Fixed TabBar */}
-      <div className="flex-shrink-0">
+      <div className="fixed bottom-0 left-0 right-0 z-50">
         <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
 
