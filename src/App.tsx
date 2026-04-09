@@ -163,7 +163,7 @@ export default function App() {
         onProfileClick={() => setShowSettings(true)}
       />
 
-      <div className="flex-1 overflow-y-auto pb-20">
+      <div className="flex-1 overflow-y-auto pb-24">
         {activeTab === 'today' && <TodayTab profile={profile} />}
         {activeTab === 'weekly' && <WeeklyTab />}
         {activeTab === 'bulletin' && <BulletinTab />}
