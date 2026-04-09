@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import EventCard from '../components/EventCard';
 import EventCardSlim from '../components/EventCardSlim';
-import { filterRelevantEvents } from '../lib/relevance';
+import { filterRelevantEvents, computeRelevance } from '../lib/relevance';
 import { useAppStore } from '../store/appStore';
 import type { UserProfile } from '../types';
 
@@ -17,15 +17,26 @@ export default function TodayTab({ profile }: TodayTabProps) {
 
   // Find today's tab
   const todayEvents = useMemo(() => {
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    // Use local date, not UTC
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const today = `${year}-${month}-${day}`; // YYYY-MM-DD in local timezone
+
+    console.log('[TodayTab] Looking for date:', today);
+    console.log('[TodayTab] Discovery map:', discoveryMap);
     const todayTab = discoveryMap.find(t => t.date === today);
+    console.log('[TodayTab] Found today tab:', todayTab);
 
     if (!todayTab) return [];
 
-    return tabs[todayTab.tab_name] || [];
+    const events = tabs[todayTab.tab_name] || [];
+    console.log('[TodayTab] Events for today:', events.length, events);
+    return events;
   }, [tabs, discoveryMap]);
 
-  const { relevant, nonRelevant } = useMemo(
+  const { relevant } = useMemo(
     () => filterRelevantEvents(todayEvents, profile),
     [todayEvents, profile.profile_version]
   );
@@ -70,29 +81,44 @@ export default function TodayTab({ profile }: TodayTabProps) {
         </button>
       </div>
 
-      {/* Relevant Events */}
-      {relevant.length > 0 ? (
-        <div className="mb-3">
-          {relevant.map(({ event, roles }) => (
-            <EventCard key={event.id} event={event} roles={roles} />
-          ))}
-        </div>
+      {focusMode === 'my' ? (
+        <>
+          {/* My Events Mode: Only show relevant events */}
+          {relevant.length > 0 ? (
+            <div>
+              {relevant.map(({ event, roles }) => (
+                <EventCard key={event.id} event={event} roles={roles} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              <p className="text-sm mb-1">No relevant events today</p>
+              <p className="text-xs text-gray-400">
+                Check the "All" tab to see other scheduled events
+              </p>
+            </div>
+          )}
+        </>
       ) : (
-        <div className="text-center py-12 text-gray-500">
-          <p className="text-sm mb-1">No relevant events today</p>
-          <p className="text-xs text-gray-400">
-            Check the "All" tab to see other scheduled events
-          </p>
-        </div>
-      )}
-
-      {/* Non-Relevant Events */}
-      {focusMode === 'my' && nonRelevant.length > 0 && (
-        <div>
-          {nonRelevant.map((event) => (
-            <EventCardSlim key={event.id} event={event} />
-          ))}
-        </div>
+        <>
+          {/* All Events Mode: Show All Events */}
+          {todayEvents.length > 0 ? (
+            <div>
+              {todayEvents.map((event) => {
+                const roles = computeRelevance(event, profile);
+                if (roles.length > 0) {
+                  return <EventCard key={event.id} event={event} roles={roles} />;
+                } else {
+                  return <EventCardSlim key={event.id} event={event} />;
+                }
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              <p className="text-sm mb-1">No events today</p>
+            </div>
+          )}
+        </>
       )}
 
       {/* Family Events Hidden Banner */}

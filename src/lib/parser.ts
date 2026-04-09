@@ -58,8 +58,8 @@ export function parseSheetTab(
 
   for (const [canonicalField, aliases] of Object.entries(config.column_map)) {
     for (let colIdx = 0; colIdx < headers.length; colIdx++) {
-      const header = (headers[colIdx] || '').toString().trim();
-      if (aliases.some(alias => header.toLowerCase() === alias.toLowerCase())) {
+      const header = (headers[colIdx] || '').toString().trim().toLowerCase();
+      if (aliases.some(alias => header === alias.trim().toLowerCase())) {
         fieldIndex[canonicalField] = colIdx;
         break;
       }
@@ -72,7 +72,11 @@ export function parseSheetTab(
       `Tab "${tabName}": Missing required columns. Found headers:`,
       headers,
       'Field map:',
-      fieldIndex
+      fieldIndex,
+      'Looking for time aliases:',
+      config.column_map.time,
+      'Headers normalized:',
+      headers.map(h => (h || '').toString().trim().toLowerCase())
     );
     return [];
   }

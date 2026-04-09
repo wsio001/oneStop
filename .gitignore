@@ -15,6 +15,7 @@ dist-ssr
 # Mock files and design assets
 mock/
 PHASE2_SETUP.md
+deployment plan.md
 
 # Editor directories and files
 .vscode/*

@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getSessionFromRequest, getValidAccessToken } from '../_lib/auth';
+import { getSessionFromRequest, getValidAccessToken } from '../_lib/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
@@ -20,26 +20,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const sheetId = process.env.IRVINE_SHEET_ID;
     if (!sheetId) {
-      console.error('Missing IRVINE_SHEET_ID env var');
       return res.status(500).json({ error: 'Server configuration error' });
     }
 
-    // Fetch sheet metadata to get all tabs
+    // Find a date tab to read data validation from
     const metadataUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?fields=sheets.properties`;
     const metadataResponse = await fetch(metadataUrl, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     if (!metadataResponse.ok) {
-      console.error('Failed to fetch sheet metadata:', await metadataResponse.text());
       return res.status(500).json({ error: 'Failed to fetch sheet metadata' });
     }
 
     const metadata = await metadataResponse.json();
     const sheets = metadata.sheets || [];
-
-    // Filter for date tabs (matching the pattern: "M/D Day")
-    const dateTabPattern = /^(\d{1,2})\/(\d{1,2})\s+(Mon|Tue|Wed|Thu|Fri|Sat|Sun)$/;
+    const dateTabPattern = /^(\d{1,2})\/(\d{1,2})\s+(MON|TUE|WED|THU|FRI|SAT|SUN)$/;
     const dateTabs = sheets
       .map((s: any) => s.properties.title)
       .filter((title: string) => dateTabPattern.test(title));
@@ -48,57 +44,52 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json({ groups: [] });
     }
 
-    // Fetch data from all date tabs
-    const ranges = dateTabs.map((tab: string) => `'${tab}'!A:Z`);
-    const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values:batchGet?${ranges.map(r => `ranges=${encodeURIComponent(r)}`).join('&')}`;
+    // Fetch grid data with validation rules from the first date tab
+    const firstTab = dateTabs[0];
+    const gridUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?includeGridData=true&ranges='${firstTab}'!A1:Z10`;
 
-    const batchResponse = await fetch(batchUrl, {
+    const gridResponse = await fetch(gridUrl, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
-    if (!batchResponse.ok) {
-      console.error('Failed to fetch sheet data:', await batchResponse.text());
-      return res.status(500).json({ error: 'Failed to fetch sheet data' });
+    if (!gridResponse.ok) {
+      return res.status(500).json({ error: 'Failed to fetch grid data' });
     }
 
-    const batchData = await batchResponse.json();
-    const valueRanges = batchData.valueRanges || [];
+    const gridData = await gridResponse.json();
+    const sheet = gridData.sheets?.[0];
+    const rowData = sheet?.data?.[0]?.rowData || [];
 
-    // Extract unique groups from all tabs
-    const groupsSet = new Set<string>();
+    // Row 2 (index 1) has headers
+    const headers = rowData[1]?.values || [];
+    const headerNames = headers.map((cell: any) => cell?.formattedValue || '');
+    const groupColIndex = headerNames.findIndex((h: string) =>
+      h.toLowerCase().trim() === 'group'
+    );
 
-    for (const valueRange of valueRanges) {
-      const rows = valueRange.values || [];
-      if (rows.length < 2) continue; // Need at least header + 1 data row
-
-      const headers = rows[0].map((h: string) => h.toLowerCase().trim());
-      const groupColIndex = headers.findIndex((h: string) =>
-        ['group', 'ministry', 'dept', 'department'].includes(h)
-      );
-
-      if (groupColIndex === -1) continue;
-
-      // Extract groups from data rows (skip header)
-      for (let i = 1; i < rows.length; i++) {
-        const row = rows[i];
-        const groupValue = row[groupColIndex];
-
-        if (groupValue && typeof groupValue === 'string') {
-          const trimmed = groupValue.trim();
-          if (trimmed && trimmed !== '-' && trimmed !== 'N/A') {
-            groupsSet.add(trimmed);
-          }
-        }
-      }
+    if (groupColIndex === -1) {
+      return res.status(200).json({ groups: [] });
     }
 
-    // Convert to array and sort
-    const groups = Array.from(groupsSet).sort();
+    // Row 3 (index 2) has data with validation
+    const groupCell = rowData[2]?.values?.[groupColIndex];
+    const validation = groupCell?.dataValidation;
+
+    if (!validation || validation.condition?.type !== 'ONE_OF_LIST') {
+      return res.status(200).json({ groups: [] });
+    }
+
+    // Extract group options from validation rule
+    const values = validation.condition.values || [];
+    const groups = values
+      .map((v: any) => v.userEnteredValue)
+      .filter((value: string) => value && value.trim())
+      .map((value: string) => value.trim());
 
     return res.status(200).json({ groups });
 
   } catch (error) {
-    console.error('Error fetching groups:', error);
+    console.error('[groups] Error fetching groups:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }

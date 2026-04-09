@@ -121,15 +121,34 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
       }
     });
 
-    // Check group membership
-    if (event.group && membership.groups.includes(event.group.toLowerCase())) {
+    // Check group membership (case-insensitive)
+    if (event.group) {
+      const eventGroupLower = event.group.toLowerCase();
+      const matchingGroup = membership.groups.find(g => g.toLowerCase() === eventGroupLower);
+      if (matchingGroup) {
+        roles.push({
+          type: 'GROUP',
+          subject: event.group,
+          kind: 'self',
+        });
+      }
+    }
+  });
+
+  // Check if user's home address matches the event location
+  if (event.location && profile.home_addresses.length > 0) {
+    const locationLower = event.location.toLowerCase();
+    const matchingAddress = profile.home_addresses.find(addr =>
+      locationLower.includes(addr.toLowerCase())
+    );
+    if (matchingAddress) {
       roles.push({
-        type: 'GROUP',
-        subject: event.group,
+        type: 'MENTIONED',
+        subject: 'Your address',
         kind: 'self',
       });
     }
-  });
+  }
 
   return roles;
 }

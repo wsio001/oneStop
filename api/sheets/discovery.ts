@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getSessionFromRequest, getValidAccessToken } from '../_lib/auth';
+import { getSessionFromRequest, getValidAccessToken } from '../_lib/auth.js';
 
 type SheetTab = {
   sheetId: number;
@@ -47,7 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const tabs: SheetTab[] = data.sheets?.map((s: any) => s.properties) || [];
 
     // Parse tab names to find date tabs and bulletin
-    const datePattern = /^(\d{1,2})\/(\d{1,2})\s+(Mon|Tue|Wed|Thu|Fri|Sat|Sun)$/;
+    const datePattern = /^(\d{1,2})\/(\d{1,2})\s+(MON|TUE|WED|THU|FRI|SAT|SUN)$/;
     const dateTabs: { date: string; tab_name: string }[] = [];
     let bulletinTab: { date: string; tab_name: string } | null = null;
 
