@@ -778,20 +778,21 @@ Each detail line has its emoji as a prefix, followed by the raw cell text. If a 
 
 **Non-relevant card (All mode only):**
 
-- Border: 0.5px solid grey (`border-gray-200`)
+- Border: 0.5px solid grey (`border-gray-300`)
 - Background: none
-- Padding: 6px 9px (tighter than relevant)
-- Opacity: 70%
-- Margin bottom: 5px
+- Padding: 12px horizontal, 8px vertical (`px-3 py-2`)
+- Opacity: 100% (no opacity applied)
+- Margin bottom: 12px (`mb-3`)
 
-Layout — same structure but with smaller fonts:
+Layout — same structure and same font sizes as relevant cards, but gray colors:
 
-- Time: 9px, weight 500, gray-600
-- Event name: 11px, weight 500, gray-600, margin-bottom 3px
-- Detail lines: 8px, gray-500, line-height 1.5
+- Time: 10px (`text-[10px]`), weight 600 (`font-semibold`), `text-gray-700`
+- Event name: 12px (`text-xs`), weight 600 (`font-semibold`), `text-gray-700`, margin-bottom 6px
+- Detail lines: 9px (`text-[9px]`), `text-gray-600`, line-height normal
+- Notes divider border: `border-gray-300`
 - No badges (non-relevant by definition has no roles to display)
 
-This compression buys back ~20% of vertical space per non-relevant card without hiding any information.
+Visual hierarchy is maintained through gray colors, thin border, and lack of background tint, while keeping readability high with the same font sizes as relevant cards.
 
 ### Weekly tab
 
