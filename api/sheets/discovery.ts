@@ -62,6 +62,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       // Check if it matches date pattern
       const match = title.match(datePattern);
+      console.log(`[Discovery] Tab "${title}" - Pattern match:`, match ? 'YES' : 'NO');
       if (match) {
         // Parse date (M/D format)
         const month = parseInt(match[1], 10);
@@ -95,10 +96,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const fourteenDaysFromNow = new Date(today);
     fourteenDaysFromNow.setDate(today.getDate() + 14);
 
+    console.log(`[Discovery] Date filter: ${today.toISOString()} to ${fourteenDaysFromNow.toISOString()}`);
+    console.log(`[Discovery] Found ${dateTabs.length} date tabs before filtering:`, dateTabs.map(t => t.date));
+
     const filteredDateTabs = dateTabs.filter(tab => {
       const tabDate = new Date(tab.date);
-      return tabDate >= today && tabDate <= fourteenDaysFromNow;
+      const isInRange = tabDate >= today && tabDate <= fourteenDaysFromNow;
+      console.log(`[Discovery] Tab ${tab.tab_name} (${tab.date}): ${isInRange ? 'INCLUDED' : 'EXCLUDED'}`);
+      return isInRange;
     });
+
+    console.log(`[Discovery] Returning ${filteredDateTabs.length} filtered tabs:`, filteredDateTabs.map(t => t.tab_name));
 
     // Return discovery result
     const result = {
