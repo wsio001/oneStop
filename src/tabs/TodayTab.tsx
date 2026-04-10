@@ -41,12 +41,6 @@ export default function TodayTab({ profile }: TodayTabProps) {
     [todayEvents, profile.profile_version]
   );
 
-  const showingFamilyEvents = useMemo(() => {
-    const membership = profile.memberships[0];
-    if (!membership) return true;
-    return membership.show_spouse_events || membership.show_kids_events;
-  }, [profile.memberships]);
-
   // Loading state
   if (syncing && todayEvents.length === 0) {
     return (
@@ -119,15 +113,6 @@ export default function TodayTab({ profile }: TodayTabProps) {
             </div>
           )}
         </>
-      )}
-
-      {/* Family Events Hidden Banner */}
-      {!showingFamilyEvents && (
-        <div className="mt-3 p-3 bg-gray-100 rounded-lg text-center">
-          <p className="text-xs text-gray-600">
-            Family events are hidden · <span className="font-medium">Settings to enable</span>
-          </p>
-        </div>
       )}
     </div>
   );
