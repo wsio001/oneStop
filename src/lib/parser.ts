@@ -1,6 +1,24 @@
 import type { Event, LocationConfig } from '../types';
 import { fnv1a } from './hash';
 
+/**
+ * Split multi-value cell on all separators: , : / + & and word "and"
+ * Preserves the original formatting while extracting individual elements
+ */
+function splitMultiValueCell(cellValue: string): string[] {
+  if (!cellValue || cellValue.trim() === '') {
+    return [];
+  }
+
+  // Split on: comma, colon, slash, plus, ampersand, and the word "and" (with word boundaries)
+  // Use word boundaries \b to avoid splitting "and" inside words like "Anderson" or "band"
+  const parts = cellValue.split(/[,:\/+&]|\band\b/i);
+
+  return parts
+    .map(part => part.trim())
+    .filter(part => part.length > 0);
+}
+
 export function parseTimeToMinutes(timeStr: string): number {
   const cleaned = timeStr.trim().toLowerCase();
 
@@ -95,22 +113,27 @@ export function parseSheetTab(
     const eventNameCell = (row[fieldIndex.event_name] || '').toString().trim();
     if (!eventNameCell) continue; // Skip rows with no event name
 
-    // Parse multi-value fields (split by comma)
-    const inCharge = fieldIndex.in_charge !== undefined
-      ? (row[fieldIndex.in_charge] || '').toString().split(',').map(s => s.trim()).filter(Boolean)
-      : [];
+    // Parse multi-value fields (split on all separators: , : / + & and "and")
+    // Store both the split array (for matching) and raw text (for display)
+    const inChargeRaw = fieldIndex.in_charge !== undefined
+      ? (row[fieldIndex.in_charge] || '').toString().trim() || null
+      : null;
+    const inCharge = inChargeRaw ? splitMultiValueCell(inChargeRaw) : [];
 
-    const helpers = fieldIndex.helpers !== undefined
-      ? (row[fieldIndex.helpers] || '').toString().split(',').map(s => s.trim()).filter(Boolean)
-      : [];
+    const helpersRaw = fieldIndex.helpers !== undefined
+      ? (row[fieldIndex.helpers] || '').toString().trim() || null
+      : null;
+    const helpers = helpersRaw ? splitMultiValueCell(helpersRaw) : [];
 
-    const childcare = fieldIndex.childcare !== undefined
-      ? (row[fieldIndex.childcare] || '').toString().split(',').map(s => s.trim()).filter(Boolean)
-      : [];
+    const childcareRaw = fieldIndex.childcare !== undefined
+      ? (row[fieldIndex.childcare] || '').toString().trim() || null
+      : null;
+    const childcare = childcareRaw ? splitMultiValueCell(childcareRaw) : [];
 
-    const food = fieldIndex.food !== undefined
-      ? (row[fieldIndex.food] || '').toString().split(',').map(s => s.trim()).filter(Boolean)
-      : [];
+    const foodRaw = fieldIndex.food !== undefined
+      ? (row[fieldIndex.food] || '').toString().trim() || null
+      : null;
+    const food = foodRaw ? splitMultiValueCell(foodRaw) : [];
 
     // Single-value fields
     const location = fieldIndex.location !== undefined
@@ -136,9 +159,13 @@ export function parseSheetTab(
       event_name: eventNameCell,
       location,
       in_charge: inCharge,
+      in_charge_raw: inChargeRaw,
       helpers,
+      helpers_raw: helpersRaw,
       childcare,
+      childcare_raw: childcareRaw,
       food,
+      food_raw: foodRaw,
       group,
       notes,
       raw_tab: tabName,

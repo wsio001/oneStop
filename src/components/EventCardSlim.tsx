@@ -28,34 +28,34 @@ export default function EventCardSlim({ event }: EventCardSlimProps) {
       )}
 
       {/* Lead & Helpers */}
-      {(event.in_charge.length > 0 || event.helpers.length > 0) && (
+      {(event.in_charge_raw || event.helpers_raw) && (
         <div className="text-[8px] text-gray-500 mb-1 flex items-start gap-1">
           <span>👤</span>
           <span>
-            {event.in_charge.length > 0 && (
-              <>Lead: {event.in_charge.join(', ')}</>
+            {event.in_charge_raw && (
+              <>Lead: {event.in_charge_raw}</>
             )}
-            {event.in_charge.length > 0 && event.helpers.length > 0 && <> · </>}
-            {event.helpers.length > 0 && (
-              <>Helpers: {event.helpers.join(', ')}</>
+            {event.in_charge_raw && event.helpers_raw && <> · </>}
+            {event.helpers_raw && (
+              <>Helpers: {event.helpers_raw}</>
             )}
           </span>
         </div>
       )}
 
       {/* Childcare */}
-      {event.childcare.length > 0 && (
+      {event.childcare_raw && (
         <div className="text-[8px] text-gray-500 mb-1 flex items-center gap-1">
           <span>👶</span>
-          <span>Childcare: {event.childcare.join(', ')}</span>
+          <span>Childcare: {event.childcare_raw}</span>
         </div>
       )}
 
       {/* Food/Snacks */}
-      {event.food.length > 0 && (
+      {event.food_raw && (
         <div className="text-[8px] text-gray-500 mb-1 flex items-center gap-1">
           <span>🍔</span>
-          <span>Snacks: {event.food.join(', ')}</span>
+          <span>Snacks: {event.food_raw}</span>
         </div>
       )}
 

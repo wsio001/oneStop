@@ -183,58 +183,71 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
       const columnsToCheck =
         person.kind === 'dependent' ? DEPENDENT_MATCH_COLUMNS : SELF_MATCH_COLUMNS;
 
-      // Check in_charge
+      // Check in_charge (iterate over array elements)
       if (columnsToCheck.includes('in_charge')) {
-        const inChargeText = event.in_charge.join(', ');
-        const match = checkMatch(person, inChargeText);
-        if (match.matched) {
-          const roleKey = `LEAD:${match.matchedText}`;
-          if (!seenRoles.has(roleKey)) {
-            const role = { type: 'LEAD' as const, subject: match.matchedText, kind: person.kind };
-            roles.push(role);
-            seenRoles.set(roleKey, role);
+        for (const element of event.in_charge) {
+          const match = checkMatch(person, element);
+          if (match.matched) {
+            const roleKey = `LEAD:${match.matchedText}`;
+            if (!seenRoles.has(roleKey)) {
+              // Use person's display_name for individual matches, matchedText for family refs
+              const subject = person.kind === 'self' ? 'YOU' : person.display_name;
+              const role = { type: 'LEAD' as const, subject, kind: person.kind };
+              roles.push(role);
+              seenRoles.set(roleKey, role);
+            }
+            break; // Only need one match per column
           }
         }
       }
 
-      // Check helpers
+      // Check helpers (iterate over array elements)
       if (columnsToCheck.includes('helpers')) {
-        const helpersText = event.helpers.join(', ');
-        const match = checkMatch(person, helpersText);
-        if (match.matched) {
-          const roleKey = `HELPER:${match.matchedText}`;
-          if (!seenRoles.has(roleKey)) {
-            const role = { type: 'HELPER' as const, subject: match.matchedText, kind: person.kind };
-            roles.push(role);
-            seenRoles.set(roleKey, role);
+        for (const element of event.helpers) {
+          const match = checkMatch(person, element);
+          if (match.matched) {
+            const roleKey = `HELPER:${match.matchedText}`;
+            if (!seenRoles.has(roleKey)) {
+              const subject = person.kind === 'self' ? 'YOU' : person.display_name;
+              const role = { type: 'HELPER' as const, subject, kind: person.kind };
+              roles.push(role);
+              seenRoles.set(roleKey, role);
+            }
+            break; // Only need one match per column
           }
         }
       }
 
-      // Check childcare
+      // Check childcare (iterate over array elements)
       if (columnsToCheck.includes('childcare')) {
-        const childcareText = event.childcare.join(', ');
-        const match = checkMatch(person, childcareText);
-        if (match.matched) {
-          const roleKey = `CHILDCARE:${match.matchedText}`;
-          if (!seenRoles.has(roleKey)) {
-            const role = { type: 'CHILDCARE' as const, subject: match.matchedText, kind: person.kind };
-            roles.push(role);
-            seenRoles.set(roleKey, role);
+        for (const element of event.childcare) {
+          const match = checkMatch(person, element);
+          if (match.matched) {
+            const roleKey = `CHILDCARE:${match.matchedText}`;
+            if (!seenRoles.has(roleKey)) {
+              const subject = person.kind === 'self' ? 'YOU' : person.display_name;
+              const role = { type: 'CHILDCARE' as const, subject, kind: person.kind };
+              roles.push(role);
+              seenRoles.set(roleKey, role);
+            }
+            break; // Only need one match per column
           }
         }
       }
 
-      // Check food
+      // Check food (iterate over array elements)
       if (columnsToCheck.includes('food')) {
-        const foodText = event.food.join(', ');
-        const match = checkMatch(person, foodText);
-        if (match.matched) {
-          const roleKey = `FOOD:${match.matchedText}`;
-          if (!seenRoles.has(roleKey)) {
-            const role = { type: 'FOOD' as const, subject: match.matchedText, kind: person.kind };
-            roles.push(role);
-            seenRoles.set(roleKey, role);
+        for (const element of event.food) {
+          const match = checkMatch(person, element);
+          if (match.matched) {
+            const roleKey = `FOOD:${match.matchedText}`;
+            if (!seenRoles.has(roleKey)) {
+              const subject = person.kind === 'self' ? 'YOU' : person.display_name;
+              const role = { type: 'FOOD' as const, subject, kind: person.kind };
+              roles.push(role);
+              seenRoles.set(roleKey, role);
+            }
+            break; // Only need one match per column
           }
         }
       }
@@ -245,7 +258,8 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
         if (match.matched) {
           const roleKey = `MENTIONED:${match.matchedText}`;
           if (!seenRoles.has(roleKey)) {
-            const role = { type: 'MENTIONED' as const, subject: match.matchedText, kind: person.kind };
+            const subject = person.kind === 'self' ? 'YOU' : person.display_name;
+            const role = { type: 'MENTIONED' as const, subject, kind: person.kind };
             roles.push(role);
             seenRoles.set(roleKey, role);
           }
@@ -258,7 +272,8 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
         if (match.matched) {
           const roleKey = `MENTIONED:${match.matchedText}`;
           if (!seenRoles.has(roleKey)) {
-            const role = { type: 'MENTIONED' as const, subject: match.matchedText, kind: person.kind };
+            const subject = person.kind === 'self' ? 'YOU' : person.display_name;
+            const role = { type: 'MENTIONED' as const, subject, kind: person.kind };
             roles.push(role);
             seenRoles.set(roleKey, role);
           }
@@ -288,8 +303,8 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
     );
     if (matchingAddress) {
       roles.push({
-        type: 'MENTIONED',
-        subject: 'Your address',
+        type: 'LOCATION',
+        subject: event.location, // Use sheet's location text (e.g., "GOLDSTONE")
         kind: 'self',
       });
     }

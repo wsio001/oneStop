@@ -70,15 +70,15 @@ const GREY_SCHEME: ColorScheme = {
 
 /**
  * Get color scheme for a set of roles based on precedence.
- * Precedence order: LEAD > FOOD > HELPER > CHILDCARE > LOCATION > GROUP > MENTIONED
+ * Precedence order: LEAD > FOOD > HELPER > CHILDCARE > MENTIONED > LOCATION > GROUP
  */
 export function getRoleColors(roles: Role[]): ColorScheme & { primaryRoleType: string | null } {
   if (roles.length === 0) {
     return { ...GREY_SCHEME, primaryRoleType: null };
   }
 
-  // Precedence order
-  const precedence = ['LEAD', 'FOOD', 'HELPER', 'CHILDCARE', 'LOCATION', 'GROUP', 'MENTIONED'];
+  // Precedence order (MENTIONED is right before GROUP per user request)
+  const precedence = ['LEAD', 'FOOD', 'HELPER', 'CHILDCARE', 'MENTIONED', 'LOCATION', 'GROUP'];
 
   // Find highest precedence role
   const primaryRole = roles.sort(

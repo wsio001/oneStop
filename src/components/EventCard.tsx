@@ -8,9 +8,7 @@ type EventCardProps = {
 
 export default function EventCard({ event, roles }: EventCardProps) {
   // Get color based on highest precedence role
-  // Filter out address matches for color priority
-  const rolesForColor = roles.filter(r => !(r.type === 'MENTIONED' && r.subject === 'Your address'));
-  const colorScheme = getRoleColors(rolesForColor.length > 0 ? rolesForColor : roles);
+  const colorScheme = getRoleColors(roles);
 
   const roleColor = {
     border: colorScheme.borderColor,
@@ -19,19 +17,20 @@ export default function EventCard({ event, roles }: EventCardProps) {
     badge: colorScheme.badgeColor,
   };
 
-  // Find top non-address role for badge display
-  const topNonAddressRole = rolesForColor[0];
+  // Find top role for badge display (roles are already sorted by precedence in getRoleColors)
+  const topRole = roles[0];
 
-  // Check if using home address
-  const hasAddressMatch = roles.some(r => r.type === 'MENTIONED' && r.subject === 'Your address');
+  // Check if using home address (LOCATION role)
+  const hasLocationMatch = roles.some(r => r.type === 'LOCATION');
 
   // Generate primary badge text
   // For GROUP type: show just the group name
+  // For LOCATION type: show "LOCATION_TEXT: LOCATION" (e.g., "GOLDSTONE: LOCATION")
   // For other types: show "SUBJECT: TYPE" format (e.g., "SIOS: LEAD", "ALL THE KIMS: FOOD")
-  const primaryBadge = topNonAddressRole
-    ? topNonAddressRole.type === 'GROUP'
-      ? topNonAddressRole.subject.toUpperCase()
-      : `${topNonAddressRole.subject.toUpperCase()}: ${topNonAddressRole.type}`
+  const primaryBadge = topRole
+    ? topRole.type === 'GROUP'
+      ? topRole.subject.toUpperCase()
+      : `${topRole.subject.toUpperCase()}: ${topRole.type}`
     : '';
 
   return (
@@ -48,14 +47,6 @@ export default function EventCard({ event, roles }: EventCardProps) {
               className={`${roleColor.badge} text-white text-[10px] px-2.5 py-1 rounded-full font-semibold uppercase`}
             >
               {primaryBadge}
-            </div>
-          )}
-          {/* Address match badge */}
-          {hasAddressMatch && (
-            <div
-              className="bg-amber-700 text-white text-[10px] px-2.5 py-1 rounded-full font-semibold uppercase"
-            >
-              USING YOUR HOME
             </div>
           )}
         </div>
@@ -75,34 +66,34 @@ export default function EventCard({ event, roles }: EventCardProps) {
       )}
 
       {/* Lead & Helpers */}
-      {(event.in_charge.length > 0 || event.helpers.length > 0) && (
+      {(event.in_charge_raw || event.helpers_raw) && (
         <div className={`text-sm ${roleColor.text} mb-2 flex items-start gap-1.5`}>
           <span>👤</span>
           <span>
-            {event.in_charge.length > 0 && (
-              <>Lead: {event.in_charge.join(', ')}</>
+            {event.in_charge_raw && (
+              <>Lead: {event.in_charge_raw}</>
             )}
-            {event.in_charge.length > 0 && event.helpers.length > 0 && <> · </>}
-            {event.helpers.length > 0 && (
-              <>Helpers: {event.helpers.join(', ')}</>
+            {event.in_charge_raw && event.helpers_raw && <> · </>}
+            {event.helpers_raw && (
+              <>Helpers: {event.helpers_raw}</>
             )}
           </span>
         </div>
       )}
 
       {/* Childcare */}
-      {event.childcare.length > 0 && (
+      {event.childcare_raw && (
         <div className={`text-sm ${roleColor.text} mb-2 flex items-center gap-1.5`}>
           <span>👶</span>
-          <span>Childcare: {event.childcare.join(', ')}</span>
+          <span>Childcare: {event.childcare_raw}</span>
         </div>
       )}
 
       {/* Food/Snacks */}
-      {event.food.length > 0 && (
+      {event.food_raw && (
         <div className={`text-sm ${roleColor.text} mb-2 flex items-center gap-1.5`}>
           <span>🍔</span>
-          <span>Food: {event.food.join(', ')}</span>
+          <span>Food: {event.food_raw}</span>
         </div>
       )}
 

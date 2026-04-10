@@ -32,10 +32,14 @@ export type Event = {
   sortKey: number;
   event_name: string;
   location: string | null;
-  in_charge: string[];
+  in_charge: string[]; // Split array for matching
+  in_charge_raw: string | null; // Original text for display
   helpers: string[];
+  helpers_raw: string | null;
   childcare: string[];
+  childcare_raw: string | null;
   food: string[];
+  food_raw: string | null;
   group: string | null;
   notes: string | null;
   raw_tab: string;
@@ -52,7 +56,7 @@ export type BulletinPost = {
 };
 
 export type Role = {
-  type: 'LEAD' | 'HELPER' | 'CHILDCARE' | 'FOOD' | 'MENTIONED' | 'GROUP';
+  type: 'LEAD' | 'HELPER' | 'CHILDCARE' | 'FOOD' | 'MENTIONED' | 'LOCATION' | 'GROUP';
   subject: string;
   kind: 'self' | 'spouse' | 'dependent';
 };
