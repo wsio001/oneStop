@@ -91,8 +91,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     dateTabs.sort((a, b) => a.date.localeCompare(b.date));
 
     // Filter to today + 14 days forward (15 days total)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Use Pacific timezone since that's where Irvine is (hardcoded for now, will use city config in Phase 5)
+    const timezone = 'America/Los_Angeles';
+    const now = new Date();
+
+    // Get today's date in the target timezone
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    const parts = formatter.formatToParts(now);
+    const year = parseInt(parts.find(p => p.type === 'year')!.value, 10);
+    const month = parseInt(parts.find(p => p.type === 'month')!.value, 10);
+    const day = parseInt(parts.find(p => p.type === 'day')!.value, 10);
+
+    // Create midnight today in the target timezone
+    const today = new Date(year, month - 1, day, 0, 0, 0, 0);
     const fourteenDaysFromNow = new Date(today);
     fourteenDaysFromNow.setDate(today.getDate() + 14);
 
