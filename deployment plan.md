@@ -44,7 +44,7 @@ Do not build everything in one pass. Build in this order and stop at each phase 
 
 **What Phase 5 adds:**
 
-1. **API route city parameter.** Add `?city=<city_id>` query parameter to all `/api/sheets/*` endpoints. Look up sheet ID from environment based on city: `process.env[\`${city_id.toUpperCase()}\_SHEET_ID\`]`. Look up LocationConfig from registry: `getLocationConfig(city_id)`. Use config for discovery patterns and parsing rules.
+1. **API route city parameter.** Add `?city=<city_id>` query parameter to all `/api/sheets/*` endpoints. Look up sheet ID from environment based on city: `process.env[\`${city_id.toUpperCase()}\_SHEET_ID\`]`. Look up LocationConfig from registry: `getLocationConfig(city_id)`. Use config for discovery patterns, parsing rules, **and timezone-aware date filtering**.
 
 2. **Environment variables per city.**
 
@@ -977,6 +977,8 @@ Store the hash map in localStorage under key `tab_hashes` so it survives reloads
 ---
 
 ## Important gotchas
+
+**Discovery API uses location timezone for date filtering.** The discovery endpoint filters tabs to "today + 14 days" using the location's timezone from LocationConfig. In Phase 1-4, this is hardcoded to `America/Los_Angeles` for Irvine. In Phase 5, it must use the city parameter to look up the correct timezone. Without timezone-aware filtering, UTC midnight on the server could exclude the current day for users in earlier timezones.
 
 **Google refresh tokens only return on first consent.** Always pass `prompt=consent` and `access_type=offline` on the initial auth URL.
 

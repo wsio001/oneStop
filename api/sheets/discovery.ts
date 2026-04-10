@@ -91,7 +91,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     dateTabs.sort((a, b) => a.date.localeCompare(b.date));
 
     // Filter to today + 14 days forward (15 days total)
-    // Use Pacific timezone since that's where Irvine is (hardcoded for now, will use city config in Phase 5)
+    // IMPORTANT: Hardcoded to Pacific timezone for single-location launch (Irvine)
+    // Phase 5 TODO: Get timezone from LocationConfig based on ?city=<city_id> query param
+    // For multi-location support, change to:
+    //   const city = req.query.city as string || 'irvine';
+    //   const config = getLocationConfig(city);
+    //   const timezone = config.timezone;
     const timezone = 'America/Los_Angeles';
     const now = new Date();
 
