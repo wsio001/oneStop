@@ -6,16 +6,16 @@ type EventCardSlimProps = {
 
 export default function EventCardSlim({ event }: EventCardSlimProps) {
   return (
-    <div className="border-[0.5px] border-gray-200 rounded-lg mb-3" style={{padding: '6px 9px'}}>
+    <div className="border-[0.5px] border-gray-200 rounded-lg mb-3 px-3 py-2">
       {/* Header: Time */}
       <div className="flex items-center justify-between mb-1.5">
-        <div className="text-[10px] font-medium text-gray-600">
+        <div className="text-[10px] font-semibold text-gray-600">
           {event.time}
         </div>
       </div>
 
       {/* Event Name */}
-      <div className="text-xs font-medium text-gray-600 mb-1.5">
+      <div className="text-xs font-semibold text-gray-600 mb-1.5">
         {event.event_name}
       </div>
 
