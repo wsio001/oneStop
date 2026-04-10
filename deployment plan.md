@@ -189,6 +189,7 @@ type Event = {
 ```
 
 **Multi-value cell parsing:** The parser splits multi-value cells (in_charge, helpers, childcare, food) on ALL separators: `,` `:` `/` `+` `&` and the word "and" (using `\band\b` regex to avoid splitting words like "Anderson"). Each cell is stored BOTH as:
+
 1. A split array (for matching) — used by the relevance matcher to iterate individual elements
 2. The raw original text (for display) — preserves the original formatting like "Tech: Winnie + Stacy"
 
@@ -382,7 +383,14 @@ The matcher respects the visibility flags. **Skip the spouse entirely when `show
 
 ```ts
 type Role = {
-  type: "LEAD" | "FOOD" | "HELPER" | "CHILDCARE" | "MENTIONED" | "LOCATION" | "GROUP";
+  type:
+    | "LEAD"
+    | "FOOD"
+    | "HELPER"
+    | "CHILDCARE"
+    | "MENTIONED"
+    | "LOCATION"
+    | "GROUP";
   subject: string; // text to display in the badge subject position
   kind: "self" | "spouse" | "dependent";
 };
@@ -488,6 +496,7 @@ Badges sit on the top line of the event card, **right-aligned**, growing leftwar
 ### Badge text formats
 
 **Current implementation (Phase 1-2):** Badge format is `{SUBJECT}: {ROLE}` where:
+
 - Subject is `"YOU"` for self matches, or the person's displayName (uppercased) for spouse/dependent matches
 - For LOCATION matches: subject is the sheet's location text (e.g., `GOLDSTONE: LOCATION`)
 - For GROUP matches: subject is the sheet's group text (e.g., `YOUTH: GROUP`)
@@ -799,29 +808,68 @@ Visual hierarchy is maintained through gray colors, thin border, and lack of bac
 **Header:**
 
 - Title: "Weekly"
-- Subtitle: date range, e.g. "Apr 7 – 21" — computed from `discoveryMap[0].date` and `discoveryMap[discoveryMap.length - 1].date`. Adapts to month rollover (e.g. "Apr 28 – May 12").
+- Subtitle: date range, e.g. "Apr 7 – 21" — computed from `discoveryMap[0].date`
+  and `discoveryMap[discoveryMap.length - 1].date`. Adapts to month rollover
+  (e.g. "Apr 28 – May 12").
 
-**Focus toggle:** same `My events / All` pill switcher as Today, with the same semantics (My = only relevant for the selected day, All = all events for the selected day).
+**Focus toggle:** same `My events / All` pill switcher as Today, with the same
+semantics. The filter respects `show_spouse_events` and `show_kids_events` from
+the user profile — when these are off, those people's events do not count as
+relevant, identical to Today behavior. This affects the pips, the counts, and
+which rows render in My events mode.
 
 **Date ribbon:**
 
-- Horizontal scrolling strip of **15 day cells** (current date + 14 days forward = 15 total)
-- Each cell is 24px wide with 2px gap between cells
-- Each cell shows:
-  - Day-of-week (Tue) at 8px, gray-500
-  - Day-of-month (7) at 11px, weight 500
-  - Pip row underneath: small colored dots (3px) representing relevant events on that day
-- Selected cell: purple pill background (`bg-purple-100`)
-- Auto-scroll: when the user taps a day or the selected day changes, scroll to keep the selected cell roughly centered in view
+- Horizontal scrolling strip of **15 day cells** (current date + 14 days
+  forward = 15 total)
+- Each cell is **26px wide** with 2px gap between cells
+- Total ribbon width is ~420px, intentionally wider than typical phone
+  viewports so horizontal scroll always works
+- Each cell shows (top to bottom):
+  - Day-of-week abbreviation (Tue, Wed, Thu) at 8px, `text-gray-500` (always gray)
+  - Day-of-month number at 11px, weight 500, with `padding-bottom: 4px` to create gap above pip row
+  - Pip row underneath: small colored dots (3px) representing relevant events
+- **Today marker styling (applies to today's date number only):**
+  - Text color: `text-purple-600` (instead of default near-black)
+  - Add 1px underline: `text-decoration: underline`
+  - Underline color: `text-decoration-color: rgb(124 58 237)` (purple-600)
+  - Underline offset: `text-underline-offset: 3px`
+  - **Important:** Today marker styling persists even when today is the selected day — both the purple pill background AND the underline render together
+  - Day-of-week label ("Tue") above the number stays `text-gray-500` always
+  - No dot or indicator in the pip row for "today" — pips represent relevance only
+- Selected cell: purple pill background (`bg-purple-100`), rounded corners
+- On initial render, scroll so today's cell is roughly 1/4 from the left edge
+  (most scrollable content is future days, so today sits left of center)
+- Auto-scroll: when the user taps a day or the selected day changes, scroll
+  to keep the selected cell roughly centered in view
 - Smooth horizontal momentum scrolling (`-webkit-overflow-scrolling: touch`)
-- Pip colors come from the role precedence — each pip is the color of an event's primary (highest precedence) role on that day. Max 3 pips, then a "+" indicator if more.
-- **Pips are computed from RELEVANT events only, regardless of the focus toggle.** The pips answer "where do I have stuff this week," and that question doesn't change based on whether you're currently filtering.
+- Pip colors come from the role precedence — each pip is the color of an
+  event's primary (highest precedence) role on that day
+- Max 3 pips per cell, then a "+" indicator if more
+- **Pips are computed from RELEVANT events only, regardless of the focus
+  toggle.** The pips answer "where do I have stuff this week," and that
+  question doesn't change based on whether you're currently filtering
+- Selected day persists in zustand store across tab navigation within the
+  session; defaults to today on session start
 
 **Selected day subheader:**
 
-- "Thursday, Apr 9 · 2 events" (count reflects the active filter mode)
+- "Thursday, Apr 9 · N events" where N reflects the active filter mode
+  (relevant count in My mode, total count in All mode)
 
-**Event list:** vertical stack of two-line rows for the selected day. NO accordion. NO chevron. NO tap-to-expand. Every row shows full details inline.
+**Event list:** vertical stack of two-line rows for the selected day. NO
+accordion. NO chevron. NO tap-to-expand. Every row shows full details inline.
+Rows are not clickable.
+
+**Empty states:**
+
+- If the selected day has zero events at all: show "No events scheduled" with
+  a small calendar icon
+- If the selected day has events but none are relevant in My events mode: show
+  "Nothing for you on [day name]" with a "Show all events" link that switches
+  the focus toggle to All
+
+**Pull-to-refresh:** works on the Weekly scroll container same as Today.
 
 ### Weekly event row (two-line)
 
@@ -839,9 +887,12 @@ Layout:
   - Left side (`flex items-center gap-1.5 flex-1 min-w-0`):
     - Time, 10px, weight 500, role color dark shade, min-width 38px
     - Event name, 11px, weight 500, role color darkest shade
-  - Right side: badge cluster (same layout rules as Today — max 2 + "+N", right-aligned)
-- **Bottom line** (detail strip, 9px, role color medium-dark, padding-left 44px to align with the event name above, line-height 1.5):
-  - Pipe-separated inline format: `📍 Location · 👤 Helpers · 👶 Childcare · 🍴 Food · 📓 Notes`
+  - Right side: badge cluster (same layout rules as Today — max 2 + "+N",
+    right-aligned, highest precedence leftmost)
+- **Bottom line** (detail strip, 9px, role color medium-dark, padding-left
+  44px to align with the event name above, line-height 1.5):
+  - Pipe-separated inline format: `📍 Location · 👤 Helpers · 👶 Childcare · 
+🍴 Food · 📓 Notes`
   - Only include fields that exist; separate present fields with " · "
 
 **Non-relevant row (All mode only):**
@@ -849,8 +900,8 @@ Layout:
 - Left border: 3px solid grey
 - Background: none
 - Padding: 5px 9px
-- Opacity: 70%
 - Margin bottom: 4px
+- **Opacity: 70%**
 
 Smaller sizes:
 
