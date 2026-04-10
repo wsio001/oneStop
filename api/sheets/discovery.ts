@@ -47,7 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const tabs: SheetTab[] = data.sheets?.map((s: any) => s.properties) || [];
 
     // Parse tab names to find date tabs and bulletin
-    const datePattern = /^(\d{1,2})\/(\d{1,2})\s+(MON|TUE|WED|THU|FRI|SAT|SUN)$/;
+    const datePattern = /^(\d{1,2})\/(\d{1,2})\s+(MON|TUE|WED|THU|FRI|SAT|SUN)$/i;
     const dateTabs: { date: string; tab_name: string }[] = [];
     let bulletinTab: { date: string; tab_name: string } | null = null;
 
