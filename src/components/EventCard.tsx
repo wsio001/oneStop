@@ -20,9 +20,6 @@ export default function EventCard({ event, roles }: EventCardProps) {
   // Find top role for badge display (roles are already sorted by precedence in getRoleColors)
   const topRole = roles[0];
 
-  // Check if using home address (LOCATION role)
-  const hasLocationMatch = roles.some(r => r.type === 'LOCATION');
-
   // Generate primary badge text
   // For GROUP type: show just the group name
   // For LOCATION type: show "LOCATION_TEXT: LOCATION" (e.g., "GOLDSTONE: LOCATION")
