@@ -1,8 +1,8 @@
 import type { LocationConfig } from '../types';
 
 export const IRVINE_CONFIG: LocationConfig = {
-  location_id: 'irvine',
-  display_name: 'Irvine',
+  city_id: 'irvine',
+  city_name: 'Irvine',
   region_id: 'west_coast',
   sheet_id: '', // Not needed on client - API routes use process.env.IRVINE_SHEET_ID
   timezone: 'America/Los_Angeles',

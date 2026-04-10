@@ -89,9 +89,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Sort date tabs by date
     dateTabs.sort((a, b) => a.date.localeCompare(b.date));
 
+    // Filter to today + 14 days forward (15 days total)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const fourteenDaysFromNow = new Date(today);
+    fourteenDaysFromNow.setDate(today.getDate() + 14);
+
+    const filteredDateTabs = dateTabs.filter(tab => {
+      const tabDate = new Date(tab.date);
+      return tabDate >= today && tabDate <= fourteenDaysFromNow;
+    });
+
     // Return discovery result
     const result = {
-      date_tabs: dateTabs,
+      date_tabs: filteredDateTabs,
       bulletin_tab: bulletinTab,
     };
 

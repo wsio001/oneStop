@@ -58,8 +58,8 @@ export type Role = {
 };
 
 export type LocationConfig = {
-  location_id: string;
-  display_name: string;
+  city_id: string;
+  city_name: string;
   region_id: string;
   sheet_id: string;
   timezone: string;

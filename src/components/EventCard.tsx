@@ -1,67 +1,26 @@
 import type { Event, Role } from '../types';
+import { getRoleColors } from '../lib/colors';
 
 type EventCardProps = {
   event: Event;
   roles: Role[];
 };
 
-// Color based on user's relationship to the event (priority order)
-const ROLE_COLORS: Record<string, { border: string; bg: string; text: string; badge: string }> = {
-  LEAD: {
-    border: 'border-red-400',
-    bg: 'bg-red-50',
-    text: 'text-red-900',
-    badge: 'bg-red-500',
-  },
-  FOOD: {
-    border: 'border-green-500',
-    bg: 'bg-green-50',
-    text: 'text-green-900',
-    badge: 'bg-green-600',
-  },
-  HELPER: {
-    border: 'border-blue-500',
-    bg: 'bg-blue-50',
-    text: 'text-blue-900',
-    badge: 'bg-blue-600',
-  },
-  CHILDCARE: {
-    border: 'border-orange-500',
-    bg: 'bg-orange-50',
-    text: 'text-orange-900',
-    badge: 'bg-orange-600',
-  },
-  MENTIONED: {
-    border: 'border-amber-600',
-    bg: 'bg-amber-50',
-    text: 'text-amber-900',
-    badge: 'bg-amber-700',
-  },
-  GROUP: {
-    border: 'border-purple-500',
-    bg: 'bg-purple-50',
-    text: 'text-purple-900',
-    badge: 'bg-purple-600',
-  },
-};
-
 export default function EventCard({ event, roles }: EventCardProps) {
-  // Priority order: LEAD > FOOD > HELPER > CHILDCARE > MENTIONED > GROUP
-  const rolePrecedence = ['LEAD', 'FOOD', 'HELPER', 'CHILDCARE', 'MENTIONED', 'GROUP'];
+  // Get color based on highest precedence role
+  // Filter out address matches for color priority
+  const rolesForColor = roles.filter(r => !(r.type === 'MENTIONED' && r.subject === 'Your address'));
+  const colorScheme = getRoleColors(rolesForColor.length > 0 ? rolesForColor : roles);
 
-  // Find the highest priority role
-  const topRole = roles.sort(
-    (a, b) => rolePrecedence.indexOf(a.type) - rolePrecedence.indexOf(b.type)
-  )[0];
+  const roleColor = {
+    border: colorScheme.borderColor,
+    bg: colorScheme.backgroundColor,
+    text: colorScheme.textPrimary,
+    badge: colorScheme.badgeColor,
+  };
 
-  // Get color based on the top role (excluding address matches for priority)
-  const topNonAddressRole = roles
-    .filter(r => !(r.type === 'MENTIONED' && r.subject === 'Your address'))
-    .sort((a, b) => rolePrecedence.indexOf(a.type) - rolePrecedence.indexOf(b.type))[0];
-
-  const roleColor = (topNonAddressRole || topRole)
-    ? ROLE_COLORS[(topNonAddressRole || topRole).type]
-    : ROLE_COLORS.GROUP;
+  // Find top non-address role for badge display
+  const topNonAddressRole = rolesForColor[0];
 
   // Check if using home address
   const hasAddressMatch = roles.some(r => r.type === 'MENTIONED' && r.subject === 'Your address');
@@ -77,10 +36,10 @@ export default function EventCard({ event, roles }: EventCardProps) {
 
   return (
     <div className={`border-[1.5px] ${roleColor.border} ${roleColor.bg} rounded-lg p-4 mb-3`}>
-      {/* Header: Time + Group + Badges */}
+      {/* Header: Time + Badges */}
       <div className="flex items-center justify-between mb-2">
         <div className={`text-sm font-medium ${roleColor.text}`}>
-          {event.time} · {event.group || 'General'}
+          {event.time}
         </div>
         <div className="flex items-center gap-1">
           {/* Primary role badge */}
@@ -134,7 +93,7 @@ export default function EventCard({ event, roles }: EventCardProps) {
       {/* Childcare */}
       {event.childcare.length > 0 && (
         <div className={`text-sm ${roleColor.text} mb-2 flex items-center gap-1.5`}>
-          <span>😊</span>
+          <span>👶</span>
           <span>Childcare: {event.childcare.join(', ')}</span>
         </div>
       )}
@@ -143,7 +102,7 @@ export default function EventCard({ event, roles }: EventCardProps) {
       {event.food.length > 0 && (
         <div className={`text-sm ${roleColor.text} mb-2 flex items-center gap-1.5`}>
           <span>🍔</span>
-          <span>Snacks: {event.food.join(', ')}</span>
+          <span>Food: {event.food.join(', ')}</span>
         </div>
       )}
 
