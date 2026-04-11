@@ -14,10 +14,22 @@ export default function WeeklyTab({ profile }: WeeklyTabProps) {
   const tabs = useAppStore((state) => state.tabs);
   const discoveryMap = useAppStore((state) => state.discoveryMap);
 
-  // Get today's date in YYYY-MM-DD format
+  // Get today's date in YYYY-MM-DD format (Pacific timezone)
   const todayDate = useMemo(() => {
     const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    // Use Pacific timezone (same as backend discovery)
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Los_Angeles',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    const parts = formatter.formatToParts(now);
+    const year = parts.find(p => p.type === 'year')!.value;
+    const month = parts.find(p => p.type === 'month')!.value;
+    const day = parts.find(p => p.type === 'day')!.value;
+
+    return `${year}-${month}-${day}`;
   }, []);
 
   // Selected day defaults to today
@@ -27,7 +39,9 @@ export default function WeeklyTab({ profile }: WeeklyTabProps) {
   // Build day cells from discovery map (15 days: today + 14 forward)
   const dayCells = useMemo(() => {
     return discoveryMap.slice(0, 15).map((day) => {
-      const dateObj = new Date(day.date);
+      // Parse YYYY-MM-DD as local date (not UTC) to avoid timezone issues
+      const [year, month, dayNum] = day.date.split('-').map(Number);
+      const dateObj = new Date(year, month - 1, dayNum);
       const dayOfWeek = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
       const dayOfMonth = dateObj.getDate();
 
@@ -68,15 +82,22 @@ export default function WeeklyTab({ profile }: WeeklyTabProps) {
 
   // Format selected day for subheader
   const selectedDayLabel = useMemo(() => {
-    const dateObj = new Date(selectedDate);
+    // Parse YYYY-MM-DD as local date (not UTC) to avoid timezone issues
+    const [year, month, dayNum] = selectedDate.split('-').map(Number);
+    const dateObj = new Date(year, month - 1, dayNum);
     return dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
   }, [selectedDate]);
 
   // Date range for header subtitle
   const dateRange = useMemo(() => {
     if (discoveryMap.length === 0) return '';
-    const first = new Date(discoveryMap[0].date);
-    const last = new Date(discoveryMap[Math.min(14, discoveryMap.length - 1)].date);
+    // Parse YYYY-MM-DD as local date (not UTC) to avoid timezone issues
+    const [firstYear, firstMonthNum, firstDay] = discoveryMap[0].date.split('-').map(Number);
+    const first = new Date(firstYear, firstMonthNum - 1, firstDay);
+
+    const lastDate = discoveryMap[Math.min(14, discoveryMap.length - 1)].date;
+    const [lastYear, lastMonthNum, lastDay] = lastDate.split('-').map(Number);
+    const last = new Date(lastYear, lastMonthNum - 1, lastDay);
 
     const firstMonth = first.toLocaleDateString('en-US', { month: 'short' });
     const lastMonth = last.toLocaleDateString('en-US', { month: 'short' });
