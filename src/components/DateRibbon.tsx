@@ -39,13 +39,20 @@ export default function DateRibbon({ days, onDaySelect }: DateRibbonProps) {
       style={{ WebkitOverflowScrolling: 'touch' }}
     >
       {days.map((day) => {
-        // Get pip colors from relevant events (max 3)
+        // Consolidate pips: 1 pip per role type (deduplicate by type)
         const pipColors: string[] = [];
-        for (const role of day.relevantRoles.slice(0, 3)) {
-          const colors = getRoleColors([role]);
-          pipColors.push(colors.badgeColor);
+        const seenTypes = new Set<string>();
+
+        for (const role of day.relevantRoles) {
+          if (!seenTypes.has(role.type)) {
+            seenTypes.add(role.type);
+            const colors = getRoleColors([role]);
+            pipColors.push(colors.badgeColor);
+            if (pipColors.length >= 3) break; // Max 3 pips
+          }
         }
-        const hasOverflow = day.relevantRoles.length > 3;
+
+        const hasOverflow = seenTypes.size > 3;
 
         return (
           <div
@@ -65,14 +72,14 @@ export default function DateRibbon({ days, onDaySelect }: DateRibbonProps) {
             <div
               className={`text-[11px] font-medium pb-1 ${
                 day.isToday
-                  ? 'text-purple-600'
+                  ? 'text-orange-600'
                   : 'text-gray-900'
               }`}
               style={
                 day.isToday
                   ? {
                       textDecoration: 'underline',
-                      textDecorationColor: 'rgb(124 58 237)', // purple-600
+                      textDecorationColor: 'rgb(234 88 12)', // orange-600
                       textUnderlineOffset: '3px',
                     }
                   : undefined

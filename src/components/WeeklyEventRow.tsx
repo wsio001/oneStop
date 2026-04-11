@@ -1,0 +1,75 @@
+import type { Event, Role } from '../types';
+import { getRoleColors } from '../lib/colors';
+
+type WeeklyEventRowProps = {
+  event: Event;
+  roles: Role[];
+};
+
+export default function WeeklyEventRow({ event, roles }: WeeklyEventRowProps) {
+  // Get color based on highest precedence role
+  const colorScheme = getRoleColors(roles);
+
+  const roleColor = {
+    border: colorScheme.borderColor,
+    bg: colorScheme.backgroundColor,
+    text: colorScheme.textPrimary,
+    textSecondary: colorScheme.textSecondary,
+    badge: colorScheme.badgeColor,
+  };
+
+  // Find top role for badge display
+  const topRole = roles[0];
+
+  // Generate primary badge text
+  const primaryBadge = topRole
+    ? topRole.type === 'GROUP'
+      ? topRole.subject.toUpperCase()
+      : `${topRole.subject.toUpperCase()}: ${topRole.type}`
+    : '';
+
+  // Build detail strip (pipe-separated inline format)
+  const details: string[] = [];
+  if (event.location) details.push(`📍 ${event.location}`);
+  if (event.in_charge_raw) details.push(`👤 Lead: ${event.in_charge_raw}`);
+  if (event.helpers_raw) details.push(`👤 Helpers: ${event.helpers_raw}`);
+  if (event.childcare_raw) details.push(`👶 ${event.childcare_raw}`);
+  if (event.food_raw) details.push(`🍔 ${event.food_raw}`);
+  if (event.notes) details.push(`📓 ${event.notes}`);
+
+  return (
+    <div
+      className={`border-l-[3px] ${roleColor.border} ${roleColor.bg} rounded-lg px-3 py-2 mb-2`}
+    >
+      {/* Top line: time + event name + badge */}
+      <div className="flex justify-between items-center mb-1">
+        <div className="flex items-center gap-1.5 flex-1 min-w-0">
+          {/* Time */}
+          <div className={`text-[10px] font-medium ${roleColor.textSecondary} min-w-[38px] flex-shrink-0`}>
+            {event.time}
+          </div>
+          {/* Event name */}
+          <div className={`text-[11px] font-medium ${roleColor.text} truncate`}>
+            {event.event_name}
+          </div>
+        </div>
+
+        {/* Badge */}
+        {primaryBadge && (
+          <div
+            className={`${roleColor.badge} text-white text-[9px] px-2 py-0.5 rounded-full font-semibold uppercase flex-shrink-0 ml-2`}
+          >
+            {primaryBadge}
+          </div>
+        )}
+      </div>
+
+      {/* Bottom line: pipe-separated details */}
+      {details.length > 0 && (
+        <div className={`text-[9px] ${roleColor.textSecondary} pl-[44px] leading-relaxed`}>
+          {details.join(' · ')}
+        </div>
+      )}
+    </div>
+  );
+}

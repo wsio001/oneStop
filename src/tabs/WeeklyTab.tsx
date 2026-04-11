@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import DateRibbon from '../components/DateRibbon';
-import EventCard from '../components/EventCard';
-import EventCardSlim from '../components/EventCardSlim';
+import WeeklyEventRow from '../components/WeeklyEventRow';
+import WeeklyEventRowSlim from '../components/WeeklyEventRowSlim';
 import { filterRelevantEvents, computeRelevance } from '../lib/relevance';
 import { useAppStore } from '../store/appStore';
 import type { UserProfile, Role } from '../types';
@@ -140,7 +140,7 @@ export default function WeeklyTab({ profile }: WeeklyTabProps) {
             {relevant.length > 0 ? (
               <div>
                 {relevant.map(({ event, roles }) => (
-                  <EventCard key={event.id} event={event} roles={roles} />
+                  <WeeklyEventRow key={event.id} event={event} roles={roles} />
                 ))}
               </div>
             ) : (
@@ -160,9 +160,9 @@ export default function WeeklyTab({ profile }: WeeklyTabProps) {
                 {selectedDayEvents.map((event) => {
                   const roles = computeRelevance(event, profile);
                   if (roles.length > 0) {
-                    return <EventCard key={event.id} event={event} roles={roles} />;
+                    return <WeeklyEventRow key={event.id} event={event} roles={roles} />;
                   } else {
-                    return <EventCardSlim key={event.id} event={event} />;
+                    return <WeeklyEventRowSlim key={event.id} event={event} />;
                   }
                 })}
               </div>

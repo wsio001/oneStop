@@ -830,11 +830,11 @@ which rows render in My events mode.
   - Day-of-month number at 11px, weight 500, with `padding-bottom: 4px` to create gap above pip row
   - Pip row underneath: small colored dots (3px) representing relevant events
 - **Today marker styling (applies to today's date number only):**
-  - Text color: `text-purple-600` (instead of default near-black)
+  - Text color: `text-orange-600` (instead of default near-black)
   - Add 1px underline: `text-decoration: underline`
-  - Underline color: `text-decoration-color: rgb(124 58 237)` (purple-600)
+  - Underline color: `text-decoration-color: rgb(234 88 12)` (orange-600)
   - Underline offset: `text-underline-offset: 3px`
-  - **Important:** Today marker styling persists even when today is the selected day — both the purple pill background AND the underline render together
+  - **Important:** Today marker styling persists even when today is the selected day — both the purple pill background AND the orange underline render together
   - Day-of-week label ("Tue") above the number stays `text-gray-500` always
   - No dot or indicator in the pip row for "today" — pips represent relevance only
 - Selected cell: purple pill background (`bg-purple-100`), rounded corners
@@ -843,9 +843,12 @@ which rows render in My events mode.
 - Auto-scroll: when the user taps a day or the selected day changes, scroll
   to keep the selected cell roughly centered in view
 - Smooth horizontal momentum scrolling (`-webkit-overflow-scrolling: touch`)
-- Pip colors come from the role precedence — each pip is the color of an
-  event's primary (highest precedence) role on that day
-- Max 3 pips per cell, then a "+" indicator if more
+- **Pip consolidation:** Show only 1 pip per role type (deduplicate by type)
+  - Example: If a day has 2 GROUP events + 1 FOOD event = show only 2 pips (1 orange for GROUP, 1 amber for FOOD)
+  - Prevents visual clutter when user has multiple events of the same type
+- Pip colors come from the role precedence — each pip is the color of that
+  role type's badge color
+- Max 3 pips per cell (3 unique role types), then a "+" indicator if more unique types exist
 - **Pips are computed from RELEVANT events only, regardless of the focus
   toggle.** The pips answer "where do I have stuff this week," and that
   question doesn't change based on whether you're currently filtering
