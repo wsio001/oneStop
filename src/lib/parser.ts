@@ -1,4 +1,4 @@
-import type { Event, LocationConfig } from '../types';
+import type { Event, LocationConfig, BulletinPost } from '../types';
 import { fnv1a } from './hash';
 
 /**
@@ -176,4 +176,89 @@ export function parseSheetTab(
 
   // Sort by time
   return events.sort((a, b) => a.sortKey - b.sortKey);
+}
+
+/**
+ * Parse bulletin tab from sheet values
+ * Expected columns: Date, Posted By, Subject, Body, Link URL, Link Label
+ */
+export function parseBulletinTab(
+  tabName: string,
+  values: string[][]
+): BulletinPost[] {
+  if (!values || values.length < 2) {
+    return [];
+  }
+
+  // Assume row 1 is header (index 0), data starts at row 2 (index 1)
+  const headers = values[0];
+
+  // Find column indices (case-insensitive)
+  const dateIdx = headers.findIndex(h =>
+    h && h.toLowerCase().trim() === 'date'
+  );
+  const postedByIdx = headers.findIndex(h =>
+    h && h.toLowerCase().trim() === 'posted by'
+  );
+  const subjectIdx = headers.findIndex(h =>
+    h && h.toLowerCase().trim() === 'subject'
+  );
+  const bodyIdx = headers.findIndex(h =>
+    h && h.toLowerCase().trim() === 'body'
+  );
+  const linkUrlIdx = headers.findIndex(h =>
+    h && h.toLowerCase().trim() === 'link url'
+  );
+  const linkLabelIdx = headers.findIndex(h =>
+    h && h.toLowerCase().trim() === 'link label'
+  );
+
+  // Check for required columns
+  if (dateIdx === -1 || postedByIdx === -1 || subjectIdx === -1 || bodyIdx === -1) {
+    console.warn(
+      `Bulletin tab "${tabName}": Missing required columns. Found headers:`,
+      headers
+    );
+    return [];
+  }
+
+  const posts: BulletinPost[] = [];
+
+  // Parse data rows
+  for (let rowIdx = 1; rowIdx < values.length; rowIdx++) {
+    const row = values[rowIdx];
+    if (!row || row.length === 0) continue;
+
+    const date = (row[dateIdx] || '').toString().trim();
+    if (!date) continue; // Skip rows with no date
+
+    const posted_by = (row[postedByIdx] || '').toString().trim();
+    const subject = (row[subjectIdx] || '').toString().trim();
+    const body = (row[bodyIdx] || '').toString().trim();
+
+    if (!subject || !body) continue; // Skip rows with no subject/body
+
+    const link_url = linkUrlIdx !== -1
+      ? (row[linkUrlIdx] || '').toString().trim() || null
+      : null;
+    const link_label = linkLabelIdx !== -1
+      ? (row[linkLabelIdx] || '').toString().trim() || null
+      : null;
+
+    // Generate stable ID
+    const id = fnv1a(`${tabName}:${rowIdx}`);
+
+    posts.push({
+      id,
+      date,
+      posted_by,
+      subject,
+      body,
+      link_url,
+      link_label,
+    });
+  }
+
+  // Return in order (newest first will be handled by the component)
+  return posts;
 }

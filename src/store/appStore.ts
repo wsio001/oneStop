@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { Event, BulletinPost } from '../types';
 import { discoverTabs, fetchSheetData } from '../lib/api';
-import { parseSheetTab } from '../lib/parser';
+import { parseSheetTab, parseBulletinTab } from '../lib/parser';
 import { hashValues } from '../lib/hash';
 import { IRVINE_CONFIG } from '../lib/locationConfig';
 
@@ -71,18 +71,29 @@ export const useAppStore = create<AppState>((set, get) => ({
       const newHashes: Record<string, string> = {};
       const newTabs: Record<string, Event[]> = {};
       const oldHashes = state.hashes;
+      let newBulletin: BulletinPost[] = state.bulletin;
 
       for (const [tabName, values] of Object.entries(rawData)) {
         const hash = hashValues(values);
         newHashes[tabName] = hash;
 
-        // Only parse if hash changed or not in state
-        if (hash !== oldHashes[tabName] || !state.tabs[tabName]) {
-          const events = parseSheetTab(tabName, values, IRVINE_CONFIG);
-          newTabs[tabName] = events;
+        // Check if this is the bulletin tab
+        const isBulletinTab = bulletin_tab && tabName === bulletin_tab.tab_name;
+
+        if (isBulletinTab) {
+          // Parse as bulletin if hash changed
+          if (hash !== oldHashes[tabName] || state.bulletin.length === 0) {
+            newBulletin = parseBulletinTab(tabName, values);
+          }
         } else {
-          // Keep existing parsed data (reference stays the same for React.memo)
-          newTabs[tabName] = state.tabs[tabName];
+          // Parse as event tab if hash changed or not in state
+          if (hash !== oldHashes[tabName] || !state.tabs[tabName]) {
+            const events = parseSheetTab(tabName, values, IRVINE_CONFIG);
+            newTabs[tabName] = events;
+          } else {
+            // Keep existing parsed data (reference stays the same for React.memo)
+            newTabs[tabName] = state.tabs[tabName];
+          }
         }
       }
 
@@ -91,6 +102,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       set({
         tabs: newTabs,
+        bulletin: newBulletin,
         hashes: newHashes,
         lastSync: Date.now(),
         syncing: false,
