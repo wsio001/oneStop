@@ -45,11 +45,11 @@ export default function WeeklyEventRow({ event, roles }: WeeklyEventRowProps) {
       <div className="flex justify-between items-center mb-1">
         <div className="flex items-center gap-1.5 flex-1 min-w-0">
           {/* Time */}
-          <div className={`text-[10px] font-medium ${roleColor.textSecondary} min-w-[38px] flex-shrink-0`}>
+          <div className={`text-[14px] font-medium ${roleColor.textSecondary} min-w-[38px] flex-shrink-0`}>
             {event.time}
           </div>
           {/* Event name */}
-          <div className={`text-[11px] font-medium ${roleColor.text} truncate`}>
+          <div className={`text-[15px] font-medium ${roleColor.text} truncate`}>
             {event.event_name}
           </div>
         </div>
@@ -57,7 +57,7 @@ export default function WeeklyEventRow({ event, roles }: WeeklyEventRowProps) {
         {/* Badge */}
         {primaryBadge && (
           <div
-            className={`${roleColor.badge} text-white text-[9px] px-2 py-0.5 rounded-full font-semibold uppercase flex-shrink-0 ml-2`}
+            className={`${roleColor.badge} text-white text-[12px] px-2 py-0.5 rounded-full font-semibold uppercase flex-shrink-0 ml-2`}
           >
             {primaryBadge}
           </div>
@@ -66,7 +66,7 @@ export default function WeeklyEventRow({ event, roles }: WeeklyEventRowProps) {
 
       {/* Bottom line: pipe-separated details */}
       {details.length > 0 && (
-        <div className={`text-[9px] ${roleColor.textSecondary} pl-[44px] leading-relaxed`}>
+        <div className={`text-[14px] ${roleColor.textSecondary} pl-[44px] leading-relaxed`}>
           {details.join(' · ')}
         </div>
       )}

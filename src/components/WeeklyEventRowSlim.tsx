@@ -15,22 +15,22 @@ export default function WeeklyEventRowSlim({ event }: WeeklyEventRowSlimProps) {
   if (event.notes) details.push(`📓 ${event.notes}`);
 
   return (
-    <div className="border-l-[3px] border-gray-300 rounded-lg px-2.5 py-1.5 mb-1.5 opacity-70">
+    <div className="border-l-[3px] border-gray-400 rounded-lg px-2.5 py-1.5 mb-2">
       {/* Top line: time + event name */}
       <div className="flex items-center gap-1.5 mb-0.5">
         {/* Time */}
-        <div className="text-[9px] font-medium text-gray-600 min-w-[34px] flex-shrink-0">
+        <div className="text-[12px] font-medium text-gray-900 min-w-[34px] flex-shrink-0">
           {event.time}
         </div>
         {/* Event name */}
-        <div className="text-[10px] text-gray-600 truncate">
+        <div className="text-[13px] text-gray-900 truncate">
           {event.event_name}
         </div>
       </div>
 
       {/* Bottom line: pipe-separated details */}
       {details.length > 0 && (
-        <div className="text-[8px] text-gray-500 pl-[39px] leading-relaxed">
+        <div className="text-[12px] text-gray-800 pl-[39px] leading-relaxed">
           {details.join(' · ')}
         </div>
       )}
