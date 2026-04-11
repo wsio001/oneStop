@@ -61,7 +61,7 @@ export default function EventCardSlim({ event }: EventCardSlimProps) {
 
       {/* Notes */}
       {event.notes && (
-        <div className="text-[9px] text-gray-800 mt-2 pt-2 border-t border-gray-500 italic">
+        <div className="text-[9px] text-gray-800 mt-2 pt-2 border-t border-gray-400 italic">
           {event.notes}
         </div>
       )}
