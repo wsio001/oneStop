@@ -186,12 +186,13 @@ export function parseBulletinTab(
   tabName: string,
   values: string[][]
 ): BulletinPost[] {
-  if (!values || values.length < 2) {
+  if (!values || values.length < 3) {
     return [];
   }
 
-  // Assume row 1 is header (index 0), data starts at row 2 (index 1)
-  const headers = values[0];
+  // Row 2 is header (index 1), data starts at row 3 (index 2)
+  const headerRowIndex = 1;
+  const headers = values[headerRowIndex];
 
   // Find column indices (case-insensitive)
   const dateIdx = headers.findIndex(h =>
@@ -203,14 +204,13 @@ export function parseBulletinTab(
   const subjectIdx = headers.findIndex(h =>
     h && h.toLowerCase().trim() === 'subject'
   );
+  // Look for "what" column (your sheet uses WHAT instead of BODY)
   const bodyIdx = headers.findIndex(h =>
-    h && h.toLowerCase().trim() === 'body'
+    h && h.toLowerCase().trim() === 'what'
   );
-  const linkUrlIdx = headers.findIndex(h =>
-    h && h.toLowerCase().trim() === 'link url'
-  );
-  const linkLabelIdx = headers.findIndex(h =>
-    h && h.toLowerCase().trim() === 'link label'
+  // Look for single "link" column (your sheet uses LINK instead of separate LINK URL and LINK LABEL)
+  const linkIdx = headers.findIndex(h =>
+    h && h.toLowerCase().trim() === 'link'
   );
 
   // Check for required columns
@@ -224,8 +224,8 @@ export function parseBulletinTab(
 
   const posts: BulletinPost[] = [];
 
-  // Parse data rows
-  for (let rowIdx = 1; rowIdx < values.length; rowIdx++) {
+  // Parse data rows starting from row 3 (index 2)
+  for (let rowIdx = 2; rowIdx < values.length; rowIdx++) {
     const row = values[rowIdx];
     if (!row || row.length === 0) continue;
 
@@ -238,12 +238,12 @@ export function parseBulletinTab(
 
     if (!subject || !body) continue; // Skip rows with no subject/body
 
-    const link_url = linkUrlIdx !== -1
-      ? (row[linkUrlIdx] || '').toString().trim() || null
+    // Single LINK column contains the URL
+    const link_url = linkIdx !== -1
+      ? (row[linkIdx] || '').toString().trim() || null
       : null;
-    const link_label = linkLabelIdx !== -1
-      ? (row[linkLabelIdx] || '').toString().trim() || null
-      : null;
+    // No separate link label column, will use default "Open link →"
+    const link_label = null;
 
     // Generate stable ID
     const id = fnv1a(`${tabName}:${rowIdx}`);
