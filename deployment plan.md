@@ -773,10 +773,10 @@ In order, top to bottom:
 Layout (top to bottom):
 
 - **Top line** (`flex justify-between items-center` — margin-bottom 3px):
-  - Left: time only (e.g. `6:00 AM`), 10px, role color dark shade (e.g. `text-purple-800`), font-weight 500. **Do NOT include a group label after the time.**
-  - Right: badge cluster (right-aligned, max 2 + "+N", see Badge layout above)
-- **Event name**: 12px, font-weight 500, role color darkest shade (e.g. `text-purple-900`), margin-bottom 5px
-- **Detail strip** (each line, 9px, role color medium-dark shade, line-height 1.6):
+  - Left: time only (e.g. `6:00 AM`), 14px (`text-sm`), role color dark shade (e.g. `text-purple-800`), font-weight 500. **Do NOT include a group label after the time.**
+  - Right: badge cluster (right-aligned, max 2 + "+N", see Badge layout above - badge text is 10px `text-[10px]`)
+- **Event name**: 18px (`text-lg`), font-weight 500, role color darkest shade (e.g. `text-purple-900`), margin-bottom 5px
+- **Detail strip** (each line, 14px (`text-sm`), role color medium-dark shade, line-height 1.6):
   - 📍 Location (only if present)
   - 👑 In Charge (only if present - uses raw cell text from the sheet)
   - 👤 Helpers (only if present - uses raw cell text from the sheet)
@@ -796,9 +796,9 @@ Each detail line has its emoji as a prefix, followed by the raw cell text. If a 
 
 Layout — same structure and same font sizes as relevant cards, but gray colors:
 
-- Time: 10px (`text-[10px]`), weight 600 (`font-semibold`), `text-gray-700`
-- Event name: 12px (`text-xs`), weight 600 (`font-semibold`), `text-gray-700`, margin-bottom 6px
-- Detail lines: 9px (`text-[9px]`), `text-gray-600`, line-height normal
+- Time: 12px (`text-[12px]`), weight 600 (`font-semibold`), `text-gray-700`
+- Event name: 12px (`text-[12px]`), weight 600 (`font-semibold`), `text-gray-700`, margin-bottom 6px
+- Detail lines: 12px (`text-[12px]`), `text-gray-600`, line-height normal
 - Notes divider border: `border-gray-300`
 - No badges (non-relevant by definition has no roles to display)
 
@@ -827,8 +827,8 @@ which rows render in My events mode.
 - Total ribbon width is ~420px, intentionally wider than typical phone
   viewports so horizontal scroll always works
 - Each cell shows (top to bottom):
-  - Day-of-week abbreviation (Tue, Wed, Thu) at 8px, `text-gray-500` (always gray)
-  - Day-of-month number at 11px, weight 500, with `padding-bottom: 4px` to create gap above pip row
+  - Day-of-week abbreviation (Tue, Wed, Thu) at 10px (`text-[10px]`), `text-gray-500` (always gray)
+  - Day-of-month number at 13px (`text-[13px]`), weight 500, with `padding-bottom: 4px` to create gap above pip row
   - Pip row underneath: small colored dots (3px) representing relevant events
 - **Today marker styling (applies to today's date number only):**
   - Text color: `text-orange-600` (instead of default near-black)
@@ -895,11 +895,11 @@ Layout:
 
 - **Top line** (`flex justify-between items-center`):
   - Left side (`flex items-center gap-1.5 flex-1 min-w-0`):
-    - Time, 10px, weight 500, role color dark shade, min-width 38px
-    - Event name, 11px, weight 500, role color darkest shade
+    - Time, 14px (`text-[14px]`), weight 500, role color dark shade, min-width 38px
+    - Event name, 15px (`text-[15px]`), weight 500, role color darkest shade
   - Right side: badge cluster (same layout rules as Today — max 2 + "+N",
-    right-aligned, highest precedence leftmost)
-- **Bottom line** (detail strip, 9px, role color medium-dark, padding-left
+    right-aligned, highest precedence leftmost, badge text 12px `text-[12px]`)
+- **Bottom line** (detail strip, 14px (`text-[14px]`), role color medium-dark, padding-left
   44px to align with the event name above, line-height 1.5):
   - Pipe-separated inline format: `📍 Location · 👑 In Charge · 👤 Helpers · 😊 Childcare · 🍴 Food · 📓 Notes`
   - Only include fields that exist; separate present fields with " · "
@@ -915,9 +915,9 @@ Layout:
 
 Smaller sizes:
 
-- Time: 9px, weight 500, gray-600, min-width 34px
-- Event name: 10px, gray-600
-- Detail strip: 8px, gray-500, padding-left 39px
+- Time: 12px (`text-[12px]`), weight 500, gray-600, min-width 34px
+- Event name: 13px (`text-[13px]`), gray-600
+- Detail strip: 12px (`text-[12px]`), gray-500, padding-left 39px
 
 ### Bulletin tab
 
@@ -949,13 +949,13 @@ Smaller sizes:
 
 Layout:
 
-- **Top row** (`flex justify-between`): date on left (9px gray-500), posted_by on right (9px gray-500)
-- **Subject**: 12px, weight 500, margin 4px 0
-- **Body**: 10px, gray-600, line-height 1.5, `whitespace-pre-line` to preserve newlines from sheet cells
+- **Top row** (`flex justify-between`): date on left (12px `text-[12px]` gray-500), posted_by on right (12px `text-[12px]` gray-500)
+- **Subject**: 14px (`text-[14px]`), weight 500, margin 4px 0
+- **Body**: 12px (`text-[12px]`), gray-600, line-height 1.5, `whitespace-pre-line` to preserve newlines from sheet cells
   - No line-clamp - shows full text
   - Newlines (`\n`) from Google Sheet cells are preserved and rendered
   - Example: Multi-line text in sheet renders with line breaks
-- **Link pill** (only if `link_url` is present): inline-block, blue-500 background, 9px text, "Open link →" (default) or uses `link_label` if provided in separate column
+- **Link pill** (only if `link_url` is present): inline-block, blue-500 background, 10px (`text-[10px]`) text, "Open link →" (default) or uses `link_label` if provided in separate column
   - Opens URL in system browser via `window.open(url, '_blank')`
   - Hover state: blue-600
 
