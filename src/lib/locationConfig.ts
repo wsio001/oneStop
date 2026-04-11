@@ -8,7 +8,7 @@ export const IRVINE_CONFIG: LocationConfig = {
   timezone: 'America/Los_Angeles',
   tab_discovery: {
     pattern: '^(\\d{1,2})/(\\d{1,2})\\s+(MON|TUE|WED|THU|FRI|SAT|SUN)$',
-    bulletin_tab_name: 'Bulletin',
+    bulletin_tab_name: 'BULLETIN 📢',
   },
   schema_version: 1,
   header_row: 2,
