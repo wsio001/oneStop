@@ -186,13 +186,19 @@ export function parseBulletinTab(
   tabName: string,
   values: string[][]
 ): BulletinPost[] {
+  console.log(`🔵 parseBulletinTab called for tab "${tabName}"`);
+  console.log(`🔵 Total rows in values: ${values?.length || 0}`);
+
   if (!values || values.length < 3) {
+    console.warn(`🔴 Bulletin tab "${tabName}": Not enough rows. Need at least 3, got ${values?.length || 0}`);
     return [];
   }
 
   // Row 2 is header (index 1), data starts at row 3 (index 2)
   const headerRowIndex = 1;
   const headers = values[headerRowIndex];
+
+  console.log(`🔵 Headers (row ${headerRowIndex + 1}):`, headers);
 
   // Find column indices (case-insensitive)
   const dateIdx = headers.findIndex(h =>
@@ -213,11 +219,21 @@ export function parseBulletinTab(
     h && h.toLowerCase().trim() === 'link'
   );
 
+  console.log(`🔵 Column indices found:`, {
+    dateIdx,
+    postedByIdx,
+    subjectIdx,
+    bodyIdx,
+    linkIdx
+  });
+
   // Check for required columns
   if (dateIdx === -1 || postedByIdx === -1 || subjectIdx === -1 || bodyIdx === -1) {
-    console.warn(
-      `Bulletin tab "${tabName}": Missing required columns. Found headers:`,
-      headers
+    console.error(
+      `🔴 Bulletin tab "${tabName}": Missing required columns. Found headers:`,
+      headers,
+      'Indices:',
+      { dateIdx, postedByIdx, subjectIdx, bodyIdx }
     );
     return [];
   }
@@ -227,16 +243,29 @@ export function parseBulletinTab(
   // Parse data rows starting from row 3 (index 2)
   for (let rowIdx = 2; rowIdx < values.length; rowIdx++) {
     const row = values[rowIdx];
-    if (!row || row.length === 0) continue;
+    console.log(`🔵 Processing row ${rowIdx + 1}:`, row);
+
+    if (!row || row.length === 0) {
+      console.log(`⚠️  Skipping row ${rowIdx + 1}: empty row`);
+      continue;
+    }
 
     const date = (row[dateIdx] || '').toString().trim();
-    if (!date) continue; // Skip rows with no date
+    if (!date) {
+      console.log(`⚠️  Skipping row ${rowIdx + 1}: no date`);
+      continue;
+    }
 
     const posted_by = (row[postedByIdx] || '').toString().trim();
     const subject = (row[subjectIdx] || '').toString().trim();
     const body = (row[bodyIdx] || '').toString().trim();
 
-    if (!subject || !body) continue; // Skip rows with no subject/body
+    console.log(`🔵 Row ${rowIdx + 1} data:`, { date, posted_by, subject, body });
+
+    if (!subject || !body) {
+      console.log(`⚠️  Skipping row ${rowIdx + 1}: missing subject or body`);
+      continue;
+    }
 
     // Single LINK column contains the URL
     const link_url = linkIdx !== -1
@@ -248,7 +277,7 @@ export function parseBulletinTab(
     // Generate stable ID
     const id = fnv1a(`${tabName}:${rowIdx}`);
 
-    posts.push({
+    const post = {
       id,
       date,
       posted_by,
@@ -256,9 +285,13 @@ export function parseBulletinTab(
       body,
       link_url,
       link_label,
-    });
+    };
+
+    console.log(`✅ Adding bulletin post:`, post);
+    posts.push(post);
   }
 
+  console.log(`🔵 Total bulletin posts parsed: ${posts.length}`);
   // Return in order (newest first will be handled by the component)
   return posts;
 }

@@ -73,6 +73,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       const oldHashes = state.hashes;
       let newBulletin: BulletinPost[] = state.bulletin;
 
+      console.log('🔵 Processing fetched tabs:', Object.keys(rawData));
+      console.log('🔵 Bulletin tab info:', bulletin_tab);
+
       for (const [tabName, values] of Object.entries(rawData)) {
         const hash = hashValues(values);
         newHashes[tabName] = hash;
@@ -80,10 +83,17 @@ export const useAppStore = create<AppState>((set, get) => ({
         // Check if this is the bulletin tab
         const isBulletinTab = bulletin_tab && tabName === bulletin_tab.tab_name;
 
+        console.log(`🔵 Tab "${tabName}": isBulletinTab=${isBulletinTab}, rows=${values.length}`);
+
         if (isBulletinTab) {
+          console.log(`🔵 Processing BULLETIN tab: "${tabName}"`);
           // Parse as bulletin if hash changed
           if (hash !== oldHashes[tabName] || state.bulletin.length === 0) {
+            console.log(`🔵 Parsing bulletin (hash changed or empty): old=${oldHashes[tabName]}, new=${hash}`);
             newBulletin = parseBulletinTab(tabName, values);
+            console.log(`🔵 Bulletin parsed: ${newBulletin.length} posts`);
+          } else {
+            console.log(`🔵 Keeping existing bulletin (hash unchanged)`);
           }
         } else {
           // Parse as event tab if hash changed or not in state
