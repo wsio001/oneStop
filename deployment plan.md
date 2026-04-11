@@ -843,6 +843,12 @@ which rows render in My events mode.
 - Auto-scroll: when the user taps a day or the selected day changes, scroll
   to keep the selected cell roughly centered in view
 - Smooth horizontal momentum scrolling (`-webkit-overflow-scrolling: touch`)
+- **Scrollability indicators** (combined cutoff + gradient approach):
+  - Ribbon max-width: `calc(100vw - 48px)` to create cutoff effect on last visible date
+  - Right-edge gradient overlay: 64px wide, `linear-gradient(to left, bg-gray-50, transparent)`
+  - Gradient positioned absolutely with `pointer-events-none`
+  - Last date partially visible (~40% cutoff) to signal more content
+  - Familiar UX pattern (Netflix, App Store) for horizontal scroll affordance
 - **Pip consolidation:** Show only 1 pip per role type (deduplicate by type)
   - Example: If a day has 2 GROUP events + 1 FOOD event = show only 2 pips (1 orange for GROUP, 1 amber for FOOD)
   - Prevents visual clutter when user has multiple events of the same type

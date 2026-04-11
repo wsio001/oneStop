@@ -31,9 +31,9 @@ export default function WeeklyEventRow({ event, roles }: WeeklyEventRowProps) {
   // Build detail strip (pipe-separated inline format)
   const details: string[] = [];
   if (event.location) details.push(`📍 ${event.location}`);
-  if (event.in_charge_raw) details.push(`👤 Lead: ${event.in_charge_raw}`);
+  if (event.in_charge_raw) details.push(`👑 Lead: ${event.in_charge_raw}`);
   if (event.helpers_raw) details.push(`👤 Helpers: ${event.helpers_raw}`);
-  if (event.childcare_raw) details.push(`👶 ${event.childcare_raw}`);
+  if (event.childcare_raw) details.push(`😊 ${event.childcare_raw}`);
   if (event.food_raw) details.push(`🍔 ${event.food_raw}`);
   if (event.notes) details.push(`📓 ${event.notes}`);
 
