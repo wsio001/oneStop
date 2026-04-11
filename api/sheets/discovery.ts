@@ -48,15 +48,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Parse tab names to find date tabs and bulletin
     const datePattern = /^(\d{1,2})\/(\d{1,2})\s+(MON|TUE|WED|THU|FRI|SAT|SUN)$/i;
+    const bulletinTabName = 'BULLETIN 📢'; // From IRVINE_CONFIG.tab_discovery.bulletin_tab_name
     const dateTabs: { date: string; tab_name: string }[] = [];
     let bulletinTab: { date: string; tab_name: string } | null = null;
 
     for (const tab of tabs) {
       const title = tab.title.trim();
 
-      // Check if it's a bulletin tab
-      if (title.toLowerCase() === 'bulletin') {
+      // Check if it's a bulletin tab (exact match)
+      if (title === bulletinTabName) {
         bulletinTab = { date: 'bulletin', tab_name: title };
+        console.log(`[Discovery] Found bulletin tab: "${title}"`);
         continue;
       }
 
