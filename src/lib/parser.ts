@@ -209,24 +209,24 @@ function parseBulletinDate(dateStr: string): number {
 }
 
 /**
- * Parse bulletin tab from sheet values
- * Expected columns: Date, Posted By, Subject, Body, Link URL, Link Label
+ * Parse bulletin tab from sheet rows with hyperlinks
+ * Expected columns: Date, Posted By, Subject, WHAT, LINK
  */
 export function parseBulletinTab(
   tabName: string,
-  values: string[][]
+  rows: Array<{ values: string[]; hyperlinks: (string | null)[] }>
 ): BulletinPost[] {
   console.log(`🔵 parseBulletinTab called for tab "${tabName}"`);
-  console.log(`🔵 Total rows in values: ${values?.length || 0}`);
+  console.log(`🔵 Total rows: ${rows?.length || 0}`);
 
-  if (!values || values.length < 3) {
-    console.warn(`🔴 Bulletin tab "${tabName}": Not enough rows. Need at least 3, got ${values?.length || 0}`);
+  if (!rows || rows.length < 3) {
+    console.warn(`🔴 Bulletin tab "${tabName}": Not enough rows. Need at least 3, got ${rows?.length || 0}`);
     return [];
   }
 
   // Row 2 is header (index 1), data starts at row 3 (index 2)
   const headerRowIndex = 1;
-  const headers = values[headerRowIndex];
+  const headers = rows[headerRowIndex].values;
 
   console.log(`🔵 Headers (row ${headerRowIndex + 1}):`, headers);
 
@@ -271,9 +271,13 @@ export function parseBulletinTab(
   const posts: BulletinPost[] = [];
 
   // Parse data rows starting from row 3 (index 2)
-  for (let rowIdx = 2; rowIdx < values.length; rowIdx++) {
-    const row = values[rowIdx];
+  for (let rowIdx = 2; rowIdx < rows.length; rowIdx++) {
+    const rowData = rows[rowIdx];
+    const row = rowData.values;
+    const hyperlinks = rowData.hyperlinks;
+
     console.log(`🔵 Processing row ${rowIdx + 1}:`, row);
+    console.log(`🔵 Row ${rowIdx + 1} hyperlinks:`, hyperlinks);
 
     if (!row || row.length === 0) {
       console.log(`⚠️  Skipping row ${rowIdx + 1}: empty row`);
@@ -303,10 +307,16 @@ export function parseBulletinTab(
     const dateValue = parseBulletinDate(date);
     console.log(`🔵 Parsed date "${date}" → ${dateValue} (${new Date(dateValue).toISOString()})`);
 
-    // Single LINK column contains the URL
-    const link_url = linkIdx !== -1
+    // Get hyperlink from LINK column if present
+    // Prefer hyperlink over cell text value
+    const link_url = linkIdx !== -1 && hyperlinks[linkIdx]
+      ? hyperlinks[linkIdx]
+      : linkIdx !== -1 && row[linkIdx]
       ? (row[linkIdx] || '').toString().trim() || null
       : null;
+
+    console.log(`🔵 Link URL for row ${rowIdx + 1}: ${link_url}`);
+
     // No separate link label column, will use default "Open link →"
     const link_label = null;
 

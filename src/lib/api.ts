@@ -68,3 +68,26 @@ export async function fetchAvailableGroups(): Promise<string[]> {
   console.log('[api] Groups data received:', data);
   return data.groups || [];
 }
+
+export async function fetchBulletinWithHyperlinks(
+  tabName: string
+): Promise<{ rows: Array<{ values: string[]; hyperlinks: (string | null)[] }> }> {
+  console.log(`[api] Fetching bulletin with hyperlinks for tab: "${tabName}"`);
+  const response = await fetch(`/api/sheets/bulletin?tabName=${encodeURIComponent(tabName)}`);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('[api] Bulletin fetch failed:', response.status, errorText);
+
+    if (response.status === 401) {
+      // Not authenticated, redirect to auth
+      window.location.href = '/api/auth/start';
+      throw new Error('Not authenticated');
+    }
+    throw new Error(`Failed to fetch bulletin: ${response.status} ${errorText}`);
+  }
+
+  const data = await response.json();
+  console.log(`[api] Bulletin data received: ${data.rows?.length || 0} rows`);
+  return data;
+}

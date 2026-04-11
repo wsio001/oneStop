@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Event, BulletinPost } from '../types';
-import { discoverTabs, fetchSheetData } from '../lib/api';
+import { discoverTabs, fetchSheetData, fetchBulletinWithHyperlinks } from '../lib/api';
 import { parseSheetTab, parseBulletinTab } from '../lib/parser';
 import { hashValues } from '../lib/hash';
 import { IRVINE_CONFIG } from '../lib/locationConfig';
@@ -54,56 +54,59 @@ export const useAppStore = create<AppState>((set, get) => ({
         authStatus: 'authenticated',
       });
 
-      // Step 2: Fetch data for all tabs
-      const allTabs = [
-        ...date_tabs.map(t => t.tab_name),
-        ...(bulletin_tab ? [bulletin_tab.tab_name] : []),
-      ];
+      // Step 2: Fetch data for date tabs only (bulletin fetched separately)
+      const dateTabs = date_tabs.map(t => t.tab_name);
 
-      if (allTabs.length === 0) {
+      if (dateTabs.length === 0 && !bulletin_tab) {
         set({ syncing: false, lastSync: Date.now() });
         return;
       }
 
-      const rawData = await fetchSheetData(allTabs);
+      // Fetch date tabs
+      const rawData = dateTabs.length > 0 ? await fetchSheetData(dateTabs) : {};
 
-      // Step 3: Hash and parse
+      // Step 3: Hash and parse date tabs
       const newHashes: Record<string, string> = {};
       const newTabs: Record<string, Event[]> = {};
       const oldHashes = state.hashes;
-      let newBulletin: BulletinPost[] = state.bulletin;
 
-      console.log('🔵 Processing fetched tabs:', Object.keys(rawData));
-      console.log('🔵 Bulletin tab info:', bulletin_tab);
+      console.log('🔵 Processing fetched date tabs:', Object.keys(rawData));
 
       for (const [tabName, values] of Object.entries(rawData)) {
         const hash = hashValues(values);
         newHashes[tabName] = hash;
 
-        // Check if this is the bulletin tab
-        const isBulletinTab = bulletin_tab && tabName === bulletin_tab.tab_name;
+        // Parse as event tab if hash changed or not in state
+        if (hash !== oldHashes[tabName] || !state.tabs[tabName]) {
+          const events = parseSheetTab(tabName, values, IRVINE_CONFIG);
+          newTabs[tabName] = events;
+        } else {
+          // Keep existing parsed data (reference stays the same for React.memo)
+          newTabs[tabName] = state.tabs[tabName];
+        }
+      }
 
-        console.log(`🔵 Tab "${tabName}": isBulletinTab=${isBulletinTab}, rows=${values.length}`);
+      // Step 4: Fetch and parse bulletin separately (with hyperlinks)
+      let newBulletin: BulletinPost[] = state.bulletin;
 
-        if (isBulletinTab) {
-          console.log(`🔵 Processing BULLETIN tab: "${tabName}"`);
-          // Parse as bulletin if hash changed
-          if (hash !== oldHashes[tabName] || state.bulletin.length === 0) {
-            console.log(`🔵 Parsing bulletin (hash changed or empty): old=${oldHashes[tabName]}, new=${hash}`);
-            newBulletin = parseBulletinTab(tabName, values);
+      if (bulletin_tab) {
+        console.log(`🔵 Fetching BULLETIN tab with hyperlinks: "${bulletin_tab.tab_name}"`);
+        try {
+          const bulletinData = await fetchBulletinWithHyperlinks(bulletin_tab.tab_name);
+          const hash = hashValues(bulletinData.rows.map(r => r.values));
+          newHashes[bulletin_tab.tab_name] = hash;
+
+          // Parse bulletin if hash changed or empty
+          if (hash !== oldHashes[bulletin_tab.tab_name] || state.bulletin.length === 0) {
+            console.log(`🔵 Parsing bulletin (hash changed or empty): old=${oldHashes[bulletin_tab.tab_name]}, new=${hash}`);
+            newBulletin = parseBulletinTab(bulletin_tab.tab_name, bulletinData.rows);
             console.log(`🔵 Bulletin parsed: ${newBulletin.length} posts`);
           } else {
             console.log(`🔵 Keeping existing bulletin (hash unchanged)`);
           }
-        } else {
-          // Parse as event tab if hash changed or not in state
-          if (hash !== oldHashes[tabName] || !state.tabs[tabName]) {
-            const events = parseSheetTab(tabName, values, IRVINE_CONFIG);
-            newTabs[tabName] = events;
-          } else {
-            // Keep existing parsed data (reference stays the same for React.memo)
-            newTabs[tabName] = state.tabs[tabName];
-          }
+        } catch (error) {
+          console.error('Failed to fetch bulletin:', error);
+          // Keep existing bulletin on error
         }
       }
 
