@@ -27,26 +27,26 @@ export default function EventCardSlim({ event }: EventCardSlimProps) {
         </div>
       )}
 
-      {/* Lead & Helpers */}
-      {(event.in_charge_raw || event.helpers_raw) && (
+      {/* Lead */}
+      {event.in_charge_raw && (
         <div className="text-[12px] text-gray-800 mb-1 flex items-start gap-1">
+          <span>👑</span>
+          <span>Lead: {event.in_charge_raw}</span>
+        </div>
+      )}
+
+      {/* helper */}
+      {event.helpers_raw && (
+        <div className="text-[12px] text-gray-800 mb-1 flex items-center gap-1">
           <span>👤</span>
-          <span>
-            {event.in_charge_raw && (
-              <>Lead: {event.in_charge_raw}</>
-            )}
-            {event.in_charge_raw && event.helpers_raw && <> · </>}
-            {event.helpers_raw && (
-              <>Helpers: {event.helpers_raw}</>
-            )}
-          </span>
+          <span>Helpers: {event.helpers_raw}</span>
         </div>
       )}
 
       {/* Childcare */}
       {event.childcare_raw && (
         <div className="text-[12px] text-gray-800 mb-1 flex items-center gap-1">
-          <span>👶</span>
+          <span>😊</span>
           <span>Childcare: {event.childcare_raw}</span>
         </div>
       )}
