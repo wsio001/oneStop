@@ -22,8 +22,8 @@ export default function BulletinCard({ post }: BulletinCardProps) {
       {/* Subject */}
       <div className="text-[12px] font-medium mb-1">{post.subject}</div>
 
-      {/* Body - line clamp 3 */}
-      <div className="text-[10px] text-gray-600 leading-relaxed line-clamp-3 mb-2">
+      {/* Body - line clamp 3, preserve newlines */}
+      <div className="text-[10px] text-gray-600 leading-relaxed line-clamp-3 mb-2 whitespace-pre-line">
         {post.body}
       </div>
 

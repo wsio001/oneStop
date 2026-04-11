@@ -33,8 +33,8 @@ export default function BulletinTab() {
   // Loading state: if never synced (lastSync is null)
   const isLoading = lastSync === null;
 
-  // Sort bulletin posts newest first (reverse order)
-  const sortedPosts = [...bulletin].reverse();
+  // Bulletin posts are already sorted newest first in parser
+  // No need to reverse or re-sort
 
   if (isLoading) {
     return (
@@ -48,9 +48,9 @@ export default function BulletinTab() {
 
   return (
     <div className="flex-1 overflow-y-auto px-4 py-4">
-      {sortedPosts.length > 0 ? (
+      {bulletin.length > 0 ? (
         <div>
-          {sortedPosts.map((post) => (
+          {bulletin.map((post) => (
             <BulletinCard key={post.id} post={post} />
           ))}
         </div>

@@ -115,6 +115,7 @@ export const STUB_BULLETIN: BulletinPost[] = [
   {
     id: 'b1',
     date: 'Apr 7',
+    dateValue: new Date(2026, 3, 7).getTime(),
     posted_by: 'Pastor Dan',
     subject: 'Easter schedule change',
     body: 'Sunrise service moved to 6:30 AM. Potluck follows the 10 AM service in the fellowship hall.',
@@ -124,6 +125,7 @@ export const STUB_BULLETIN: BulletinPost[] = [
   {
     id: 'b2',
     date: 'Apr 6',
+    dateValue: new Date(2026, 3, 6).getTime(),
     posted_by: 'Worship Team',
     subject: 'Song list posted',
     body: "This week's setlist is up. Please review before Thursday rehearsal.",
@@ -133,6 +135,7 @@ export const STUB_BULLETIN: BulletinPost[] = [
   {
     id: 'b3',
     date: 'Apr 5',
+    dateValue: new Date(2026, 3, 5).getTime(),
     posted_by: 'Mary K.',
     subject: 'Childcare signups',
     body: 'Two slots still open for next Wednesday. Text me if you can help.',

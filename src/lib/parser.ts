@@ -179,6 +179,36 @@ export function parseSheetTab(
 }
 
 /**
+ * Parse bulletin date string (M/D format) to timestamp
+ * Assumes dates are in the past (posted dates can't be in the future)
+ * Example: "4/7" could be 4/7/2026 or 4/7/2025
+ * If the date would be in the future, use previous year
+ */
+function parseBulletinDate(dateStr: string): number {
+  // Try to parse M/D or MM/DD format
+  const match = dateStr.match(/^(\d{1,2})\/(\d{1,2})$/);
+  if (!match) {
+    console.warn(`⚠️  Invalid date format: "${dateStr}"`);
+    return 0; // Will sort to end
+  }
+
+  const month = parseInt(match[1], 10);
+  const day = parseInt(match[2], 10);
+  const currentYear = new Date().getFullYear();
+  const now = new Date();
+
+  // Try current year first
+  let testDate = new Date(currentYear, month - 1, day, 23, 59, 59); // End of day
+
+  // If date is in the future, use previous year (announcements can't be posted in future)
+  if (testDate > now) {
+    testDate = new Date(currentYear - 1, month - 1, day, 23, 59, 59);
+  }
+
+  return testDate.getTime();
+}
+
+/**
  * Parse bulletin tab from sheet values
  * Expected columns: Date, Posted By, Subject, Body, Link URL, Link Label
  */
@@ -258,7 +288,9 @@ export function parseBulletinTab(
 
     const posted_by = (row[postedByIdx] || '').toString().trim();
     const subject = (row[subjectIdx] || '').toString().trim();
-    const body = (row[bodyIdx] || '').toString().trim();
+    // Preserve newlines in body text - only trim outer whitespace
+    const bodyRaw = (row[bodyIdx] || '').toString();
+    const body = bodyRaw.trim();
 
     console.log(`🔵 Row ${rowIdx + 1} data:`, { date, posted_by, subject, body });
 
@@ -266,6 +298,10 @@ export function parseBulletinTab(
       console.log(`⚠️  Skipping row ${rowIdx + 1}: missing subject or body`);
       continue;
     }
+
+    // Parse date for sorting
+    const dateValue = parseBulletinDate(date);
+    console.log(`🔵 Parsed date "${date}" → ${dateValue} (${new Date(dateValue).toISOString()})`);
 
     // Single LINK column contains the URL
     const link_url = linkIdx !== -1
@@ -280,6 +316,7 @@ export function parseBulletinTab(
     const post = {
       id,
       date,
+      dateValue,
       posted_by,
       subject,
       body,
@@ -292,6 +329,10 @@ export function parseBulletinTab(
   }
 
   console.log(`🔵 Total bulletin posts parsed: ${posts.length}`);
-  // Return in order (newest first will be handled by the component)
+
+  // Sort by dateValue descending (newest first)
+  posts.sort((a, b) => b.dateValue - a.dateValue);
+  console.log(`🔵 Sorted bulletin posts (newest first):`, posts.map(p => `${p.date} (${p.dateValue})`));
+
   return posts;
 }

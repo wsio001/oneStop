@@ -48,6 +48,7 @@ export type Event = {
 export type BulletinPost = {
   id: string;
   date: string;
+  dateValue: number; // Timestamp for sorting (newest first)
   posted_by: string;
   subject: string;
   body: string;
