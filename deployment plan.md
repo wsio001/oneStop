@@ -918,21 +918,50 @@ Smaller sizes:
 
 **Feed:** vertical list of cards, newest first.
 
+**Data source:**
+- Google Sheet tab name: `BULLETIN 📢` (configured in `IRVINE_CONFIG.tab_discovery.bulletin_tab_name`)
+- Row 2 (index 1): Headers - `DATE | POSTED BY | SUBJECT | WHAT | LINK`
+- Row 3+ (index 2+): Data rows
+
+**Sorting:**
+- Posts sorted by date (newest first)
+- Date parsing logic:
+  - Parse M/D format (e.g., "4/7", "8/26")
+  - If parsed date would be in future, use previous year (announcements can't be posted in future)
+  - Example: Today is 4/10/2026, "4/7" → 4/7/2026, "8/26" → 8/26/2025
+  - Sort by timestamp descending (newest → oldest)
+
 **Bulletin card:**
 
 - Background: white
 - Border: 0.5px solid gray-200
-- Padding: 10px 12px
+- Padding: 10px 12px (px-3 py-2.5)
 - Border radius: 8px
-- Margin bottom: 8px
+- Margin bottom: 8px (mb-2)
+- **Dynamic height**: Card expands to show full text content (no truncation)
 
 Layout:
 
 - **Top row** (`flex justify-between`): date on left (9px gray-500), posted_by on right (9px gray-500)
 - **Subject**: 12px, weight 500, margin 4px 0
-- **Body**: 10px, gray-600, line-height 1.5, line-clamp 3
-- **Link pill** (only if `link_url` is present): inline-block, blue background, 9px text, "Open link →" or `link_label` if provided
-- Tapping the link pill opens the URL in the system browser (not in-app webview)
+- **Body**: 10px, gray-600, line-height 1.5, `whitespace-pre-line` to preserve newlines from sheet cells
+  - No line-clamp - shows full text
+  - Newlines (`\n`) from Google Sheet cells are preserved and rendered
+  - Example: Multi-line text in sheet renders with line breaks
+- **Link pill** (only if `link_url` is present): inline-block, blue-500 background, 9px text, "Open link →" (default) or uses `link_label` if provided in separate column
+  - Opens URL in system browser via `window.open(url, '_blank')`
+  - Hover state: blue-600
+
+**Discovery and parsing:**
+- Discovery API (`/api/sheets/discovery`) matches tab name exactly: `title === 'BULLETIN 📢'`
+- Parser (`parseBulletinTab`) expects columns: DATE, POSTED BY, SUBJECT, WHAT, LINK
+- Generates `dateValue` timestamp for sorting
+- Returns `BulletinPost[]` sorted newest first
+
+**States:**
+- **Loading** (first load, `lastSync === null`): 3 skeleton cards with pulse animation
+- **Empty** (`bulletin.length === 0`): "No bulletin posts" with subtitle "Check back later for updates"
+- **Populated**: Feed of cards sorted newest first
 
 The Bulletin tab is NOT affected by the relevance filter — bulletin posts are broadcasts to everyone, so they appear for every user regardless of toggles.
 
