@@ -778,8 +778,9 @@ Layout (top to bottom):
 - **Event name**: 12px, font-weight 500, role color darkest shade (e.g. `text-purple-900`), margin-bottom 5px
 - **Detail strip** (each line, 9px, role color medium-dark shade, line-height 1.6):
   - 📍 Location (only if present)
-  - 👤 Helpers / In Charge (uses raw cell text from the sheet)
-  - 👶 Childcare (only if present)
+  - 👑 In Charge (only if present - uses raw cell text from the sheet)
+  - 👤 Helpers (only if present - uses raw cell text from the sheet)
+  - 😊 Childcare (only if present)
   - 🍴 Food (only if present)
   - 📓 Notes (only if present)
 
@@ -900,9 +901,9 @@ Layout:
     right-aligned, highest precedence leftmost)
 - **Bottom line** (detail strip, 9px, role color medium-dark, padding-left
   44px to align with the event name above, line-height 1.5):
-  - Pipe-separated inline format: `📍 Location · 👤 Helpers · 👶 Childcare · 
-🍴 Food · 📓 Notes`
+  - Pipe-separated inline format: `📍 Location · 👑 In Charge · 👤 Helpers · 😊 Childcare · 🍴 Food · 📓 Notes`
   - Only include fields that exist; separate present fields with " · "
+  - 👑 for In Charge, 👤 for Helpers (separated), 😊 for Childcare (changed from 👶)
 
 **Non-relevant row (All mode only):**
 
