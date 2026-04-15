@@ -20,6 +20,7 @@ type TokenizedPerson = {
   display_name: string;
   parsedName: ParsedName;
   nicknames: string[]; // Exact nickname strings (not tokenized)
+  familyReferences: string[]; // Family references (e.g., "Sios", "The Kims")
   kind: 'self' | 'spouse' | 'dependent';
 };
 
@@ -63,6 +64,9 @@ function parseName(name: string): ParsedName {
 function tokenizeMembership(membership: Membership): TokenizedPerson[] {
   const people: TokenizedPerson[] = [];
 
+  // Family references shared by all family members
+  const familyReferences = (membership.family_references || []).map(ref => ref.toLowerCase());
+
   // Self
   const selfParsedName = parseName(membership.self.display_name);
   const selfNicknames = membership.self.aliases.map(a => a.toLowerCase());
@@ -70,6 +74,7 @@ function tokenizeMembership(membership: Membership): TokenizedPerson[] {
     display_name: membership.self.display_name,
     parsedName: selfParsedName,
     nicknames: selfNicknames,
+    familyReferences: familyReferences,
     kind: 'self',
   });
 
@@ -81,6 +86,7 @@ function tokenizeMembership(membership: Membership): TokenizedPerson[] {
       display_name: membership.spouse.display_name,
       parsedName: spouseParsedName,
       nicknames: spouseNicknames,
+      familyReferences: familyReferences,
       kind: 'spouse',
     });
   }
@@ -94,6 +100,7 @@ function tokenizeMembership(membership: Membership): TokenizedPerson[] {
         display_name: dep.display_name,
         parsedName: depParsedName,
         nicknames: depNicknames,
+        familyReferences: familyReferences,
         kind: 'dependent',
       });
     });
@@ -120,6 +127,14 @@ function checkMatch(person: TokenizedPerson, cellValue: string): { matched: bool
   // Rule 1: Check for exact nickname match
   for (const nickname of person.nicknames) {
     if (cellLower === nickname || cellTokens.includes(nickname)) {
+      return { matched: true, matchedText: cellValue.trim() };
+    }
+  }
+
+  // Rule 1.5: Check for family reference match (e.g., "Sios", "The Kims")
+  // This matches if cell text exactly matches or contains any family reference
+  for (const familyRef of person.familyReferences) {
+    if (cellLower === familyRef || cellTokens.includes(familyRef)) {
       return { matched: true, matchedText: cellValue.trim() };
     }
   }
