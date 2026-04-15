@@ -13,6 +13,7 @@ type ProfileFormData = {
   showSpouseEvents: boolean;
   spouseName: string;
   spouseAliases: string;
+  familyReferences: string;
   hasKids: boolean;
   showKidsEvents: boolean;
   kids: { name: string; aliases: string }[];
@@ -50,6 +51,7 @@ export default function ProfileForm({
         showSpouseEvents: false,
         spouseName: '',
         spouseAliases: '',
+        familyReferences: '',
         hasKids: false,
         showKidsEvents: false,
         kids: [],
@@ -67,6 +69,7 @@ export default function ProfileForm({
       showSpouseEvents: membership.show_spouse_events,
       spouseName: membership.spouse?.display_name || '',
       spouseAliases: membership.spouse?.aliases.join(', ') || '',
+      familyReferences: membership.family_references?.join(', ') || '',
       hasKids: membership.has_kids,
       showKidsEvents: membership.show_kids_events,
       kids: membership.dependents.map((d) => ({
@@ -114,6 +117,7 @@ export default function ProfileForm({
         showSpouseEvents: false,
         spouseName: '',
         spouseAliases: '',
+        familyReferences: '',
         hasKids: false,
         showKidsEvents: false,
         kids: [],
@@ -131,6 +135,7 @@ export default function ProfileForm({
       showSpouseEvents: membership.show_spouse_events,
       spouseName: membership.spouse?.display_name || '',
       spouseAliases: membership.spouse?.aliases.join(', ') || '',
+      familyReferences: membership.family_references?.join(', ') || '',
       hasKids: membership.has_kids,
       showKidsEvents: membership.show_kids_events,
       kids: membership.dependents.map((d) => ({
@@ -352,6 +357,23 @@ export default function ProfileForm({
                     placeholder="Sarah Smith, Sarah S."
                     className="w-full bg-white border border-purple-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
+                  <div>
+                    <label className="block text-xs text-purple-900 mb-1">
+                      How are you and your spouse referred to together?
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.familyReferences}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, familyReferences: e.target.value }))
+                      }
+                      placeholder="e.g., Sios, The Sios, Sio Family"
+                      className="w-full bg-white border border-purple-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                    <p className="text-[10px] text-purple-700 mt-1">
+                      Common ways people refer to you as a couple (separate with commas)
+                    </p>
+                  </div>
                 </div>
               )}
             </>

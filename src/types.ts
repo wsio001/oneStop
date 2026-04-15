@@ -15,6 +15,7 @@ export type Membership = {
   show_spouse_events: boolean;
   has_kids: boolean;
   show_kids_events: boolean;
+  family_references: string[]; // How the family is referred to together (e.g., "Sios", "The Sios")
 };
 
 export type UserProfile = {

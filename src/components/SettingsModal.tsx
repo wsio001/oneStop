@@ -37,6 +37,11 @@ export default function SettingsModal({ profile, isOpen, onClose }: SettingsModa
       .map((a: string) => a.trim())
       .filter(Boolean);
 
+    const familyReferences = formData.familyReferences
+      .split(',')
+      .map((a: string) => a.trim())
+      .filter(Boolean);
+
     const membership = createMembership({
       city_id: formData.city,
       city_name: 'Irvine',
@@ -65,6 +70,7 @@ export default function SettingsModal({ profile, isOpen, onClose }: SettingsModa
       show_spouse_events: formData.showSpouseEvents,
       has_kids: formData.hasKids,
       show_kids_events: formData.showKidsEvents,
+      family_references: familyReferences,
     });
 
     updateProfile({

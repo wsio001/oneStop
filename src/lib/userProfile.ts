@@ -70,6 +70,7 @@ export function createMembership(partial: Partial<Membership>): Membership {
     show_spouse_events: partial.show_spouse_events ?? false,
     has_kids: partial.has_kids ?? false,
     show_kids_events: partial.show_kids_events ?? false,
+    family_references: partial.family_references || [],
   };
 }
 
