@@ -205,8 +205,14 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
           if (match.matched) {
             const roleKey = `LEAD:${match.matchedText}`;
             if (!seenRoles.has(roleKey)) {
-              // Use person's display_name for individual matches, matchedText for family refs
-              const subject = person.kind === 'self' ? 'YOU' : person.display_name;
+              // Check if matchedText is a family reference (case-insensitive)
+              const isFamilyRef = person.familyReferences.some(ref =>
+                ref === match.matchedText.toLowerCase()
+              );
+              // Use matchedText for family refs, otherwise use YOU or person's name
+              const subject = isFamilyRef
+                ? match.matchedText.toUpperCase()
+                : (person.kind === 'self' ? 'YOU' : person.display_name);
               const role = { type: 'LEAD' as const, subject, kind: person.kind, matchedText: match.matchedText };
               roles.push(role);
               seenRoles.set(roleKey, role);
@@ -223,7 +229,12 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
           if (match.matched) {
             const roleKey = `HELPER:${match.matchedText}`;
             if (!seenRoles.has(roleKey)) {
-              const subject = person.kind === 'self' ? 'YOU' : person.display_name;
+              const isFamilyRef = person.familyReferences.some(ref =>
+                ref === match.matchedText.toLowerCase()
+              );
+              const subject = isFamilyRef
+                ? match.matchedText.toUpperCase()
+                : (person.kind === 'self' ? 'YOU' : person.display_name);
               const role = { type: 'HELPER' as const, subject, kind: person.kind, matchedText: match.matchedText };
               roles.push(role);
               seenRoles.set(roleKey, role);
@@ -240,7 +251,12 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
           if (match.matched) {
             const roleKey = `CHILDCARE:${match.matchedText}`;
             if (!seenRoles.has(roleKey)) {
-              const subject = person.kind === 'self' ? 'YOU' : person.display_name;
+              const isFamilyRef = person.familyReferences.some(ref =>
+                ref === match.matchedText.toLowerCase()
+              );
+              const subject = isFamilyRef
+                ? match.matchedText.toUpperCase()
+                : (person.kind === 'self' ? 'YOU' : person.display_name);
               const role = { type: 'CHILDCARE' as const, subject, kind: person.kind, matchedText: match.matchedText };
               roles.push(role);
               seenRoles.set(roleKey, role);
@@ -257,7 +273,12 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
           if (match.matched) {
             const roleKey = `FOOD:${match.matchedText}`;
             if (!seenRoles.has(roleKey)) {
-              const subject = person.kind === 'self' ? 'YOU' : person.display_name;
+              const isFamilyRef = person.familyReferences.some(ref =>
+                ref === match.matchedText.toLowerCase()
+              );
+              const subject = isFamilyRef
+                ? match.matchedText.toUpperCase()
+                : (person.kind === 'self' ? 'YOU' : person.display_name);
               const role = { type: 'FOOD' as const, subject, kind: person.kind, matchedText: match.matchedText };
               roles.push(role);
               seenRoles.set(roleKey, role);
@@ -273,7 +294,12 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
         if (match.matched) {
           const roleKey = `MENTIONED:${match.matchedText}`;
           if (!seenRoles.has(roleKey)) {
-            const subject = person.kind === 'self' ? 'YOU' : person.display_name;
+            const isFamilyRef = person.familyReferences.some(ref =>
+              ref === match.matchedText.toLowerCase()
+            );
+            const subject = isFamilyRef
+              ? match.matchedText.toUpperCase()
+              : (person.kind === 'self' ? 'YOU' : person.display_name);
             const role = { type: 'MENTIONED' as const, subject, kind: person.kind, matchedText: match.matchedText };
             roles.push(role);
             seenRoles.set(roleKey, role);
@@ -287,7 +313,12 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
         if (match.matched) {
           const roleKey = `MENTIONED:${match.matchedText}`;
           if (!seenRoles.has(roleKey)) {
-            const subject = person.kind === 'self' ? 'YOU' : person.display_name;
+            const isFamilyRef = person.familyReferences.some(ref =>
+              ref === match.matchedText.toLowerCase()
+            );
+            const subject = isFamilyRef
+              ? match.matchedText.toUpperCase()
+              : (person.kind === 'self' ? 'YOU' : person.display_name);
             const role = { type: 'MENTIONED' as const, subject, kind: person.kind, matchedText: match.matchedText };
             roles.push(role);
             seenRoles.set(roleKey, role);
