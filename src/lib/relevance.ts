@@ -192,7 +192,7 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
             if (!seenRoles.has(roleKey)) {
               // Use person's display_name for individual matches, matchedText for family refs
               const subject = person.kind === 'self' ? 'YOU' : person.display_name;
-              const role = { type: 'LEAD' as const, subject, kind: person.kind };
+              const role = { type: 'LEAD' as const, subject, kind: person.kind, matchedText: match.matchedText };
               roles.push(role);
               seenRoles.set(roleKey, role);
             }
@@ -209,7 +209,7 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
             const roleKey = `HELPER:${match.matchedText}`;
             if (!seenRoles.has(roleKey)) {
               const subject = person.kind === 'self' ? 'YOU' : person.display_name;
-              const role = { type: 'HELPER' as const, subject, kind: person.kind };
+              const role = { type: 'HELPER' as const, subject, kind: person.kind, matchedText: match.matchedText };
               roles.push(role);
               seenRoles.set(roleKey, role);
             }
@@ -226,7 +226,7 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
             const roleKey = `CHILDCARE:${match.matchedText}`;
             if (!seenRoles.has(roleKey)) {
               const subject = person.kind === 'self' ? 'YOU' : person.display_name;
-              const role = { type: 'CHILDCARE' as const, subject, kind: person.kind };
+              const role = { type: 'CHILDCARE' as const, subject, kind: person.kind, matchedText: match.matchedText };
               roles.push(role);
               seenRoles.set(roleKey, role);
             }
@@ -243,7 +243,7 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
             const roleKey = `FOOD:${match.matchedText}`;
             if (!seenRoles.has(roleKey)) {
               const subject = person.kind === 'self' ? 'YOU' : person.display_name;
-              const role = { type: 'FOOD' as const, subject, kind: person.kind };
+              const role = { type: 'FOOD' as const, subject, kind: person.kind, matchedText: match.matchedText };
               roles.push(role);
               seenRoles.set(roleKey, role);
             }
@@ -259,7 +259,7 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
           const roleKey = `MENTIONED:${match.matchedText}`;
           if (!seenRoles.has(roleKey)) {
             const subject = person.kind === 'self' ? 'YOU' : person.display_name;
-            const role = { type: 'MENTIONED' as const, subject, kind: person.kind };
+            const role = { type: 'MENTIONED' as const, subject, kind: person.kind, matchedText: match.matchedText };
             roles.push(role);
             seenRoles.set(roleKey, role);
           }
@@ -273,7 +273,7 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
           const roleKey = `MENTIONED:${match.matchedText}`;
           if (!seenRoles.has(roleKey)) {
             const subject = person.kind === 'self' ? 'YOU' : person.display_name;
-            const role = { type: 'MENTIONED' as const, subject, kind: person.kind };
+            const role = { type: 'MENTIONED' as const, subject, kind: person.kind, matchedText: match.matchedText };
             roles.push(role);
             seenRoles.set(roleKey, role);
           }
@@ -290,6 +290,7 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
           type: 'GROUP',
           subject: event.group,
           kind: 'self',
+          matchedText: event.group, // The group name from the sheet
         });
       }
     }
@@ -306,6 +307,7 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
         type: 'LOCATION',
         subject: event.location, // Use sheet's location text (e.g., "GOLDSTONE")
         kind: 'self',
+        matchedText: event.location, // The location from the sheet
       });
     }
   }

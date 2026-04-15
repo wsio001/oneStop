@@ -60,6 +60,7 @@ export type Role = {
   type: 'LEAD' | 'HELPER' | 'CHILDCARE' | 'FOOD' | 'MENTIONED' | 'LOCATION' | 'GROUP';
   subject: string;
   kind: 'self' | 'spouse' | 'dependent';
+  matchedText: string; // The original cell text that matched (e.g., "Sios", "Will Slo", "Youth")
 };
 
 export type LocationConfig = {
