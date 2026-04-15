@@ -1,5 +1,6 @@
 import type { Event, Role } from '../types';
-import { getRoleColors } from '../lib/colors';
+import { getRoleColors, getBadgeColor } from '../lib/colors';
+import BadgeStack from './BadgeStack';
 
 type EventCardProps = {
   event: Event;
@@ -14,21 +15,7 @@ export default function EventCard({ event, roles }: EventCardProps) {
     border: colorScheme.borderColor,
     bg: colorScheme.backgroundColor,
     text: colorScheme.textPrimary,
-    badge: colorScheme.badgeColor,
   };
-
-  // Find top role for badge display (roles are already sorted by precedence in getRoleColors)
-  const topRole = roles[0];
-
-  // Generate primary badge text
-  // For GROUP type: show just the group name
-  // For LOCATION type: show "LOCATION_TEXT: LOCATION" (e.g., "GOLDSTONE: LOCATION")
-  // For other types: show "SUBJECT: TYPE" format (e.g., "SIOS: LEAD", "ALL THE KIMS: FOOD")
-  const primaryBadge = topRole
-    ? topRole.type === 'GROUP'
-      ? topRole.subject.toUpperCase()
-      : `${topRole.subject.toUpperCase()}: ${topRole.type}`
-    : '';
 
   return (
     <div className={`border-[1.5px] ${roleColor.border} ${roleColor.bg} rounded-lg p-4 mb-3`}>
@@ -37,16 +24,7 @@ export default function EventCard({ event, roles }: EventCardProps) {
         <div className={`text-sm font-medium ${roleColor.text}`}>
           {event.time}
         </div>
-        <div className="flex items-center gap-1">
-          {/* Primary role badge */}
-          {primaryBadge && (
-            <div
-              className={`${roleColor.badge} text-white text-[10px] px-2.5 py-1 rounded-full font-semibold uppercase`}
-            >
-              {primaryBadge}
-            </div>
-          )}
-        </div>
+        <BadgeStack roles={roles} getBadgeColor={getBadgeColor} size="medium" />
       </div>
 
       {/* Event Name */}

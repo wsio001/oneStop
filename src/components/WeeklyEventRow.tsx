@@ -1,5 +1,6 @@
 import type { Event, Role } from '../types';
-import { getRoleColors } from '../lib/colors';
+import { getRoleColors, getBadgeColor } from '../lib/colors';
+import BadgeStack from './BadgeStack';
 
 type WeeklyEventRowProps = {
   event: Event;
@@ -15,18 +16,7 @@ export default function WeeklyEventRow({ event, roles }: WeeklyEventRowProps) {
     bg: colorScheme.backgroundColor,
     text: colorScheme.textPrimary,
     textSecondary: colorScheme.textSecondary,
-    badge: colorScheme.badgeColor,
   };
-
-  // Find top role for badge display
-  const topRole = roles[0];
-
-  // Generate primary badge text
-  const primaryBadge = topRole
-    ? topRole.type === 'GROUP'
-      ? topRole.subject.toUpperCase()
-      : `${topRole.subject.toUpperCase()}: ${topRole.type}`
-    : '';
 
   // Build detail strip (pipe-separated inline format)
   const details: string[] = [];
@@ -54,14 +44,10 @@ export default function WeeklyEventRow({ event, roles }: WeeklyEventRowProps) {
           </div>
         </div>
 
-        {/* Badge */}
-        {primaryBadge && (
-          <div
-            className={`${roleColor.badge} text-white text-[12px] px-2 py-0.5 rounded-full font-semibold uppercase flex-shrink-0 ml-2`}
-          >
-            {primaryBadge}
-          </div>
-        )}
+        {/* Badge Stack */}
+        <div className="flex-shrink-0 ml-2">
+          <BadgeStack roles={roles} getBadgeColor={getBadgeColor} size="small" />
+        </div>
       </div>
 
       {/* Bottom line: pipe-separated details */}

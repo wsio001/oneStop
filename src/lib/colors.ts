@@ -69,6 +69,13 @@ const GREY_SCHEME: ColorScheme = {
 };
 
 /**
+ * Get badge color for a specific role type
+ */
+export function getBadgeColor(roleType: string): string {
+  return ROLE_COLOR_MAP[roleType]?.badgeColor || GREY_SCHEME.badgeColor;
+}
+
+/**
  * Get color scheme for a set of roles based on precedence.
  * Precedence order: LEAD > FOOD > HELPER > CHILDCARE > MENTIONED > LOCATION > GROUP
  */
