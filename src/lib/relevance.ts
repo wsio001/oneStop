@@ -358,7 +358,52 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
     }
   }
 
-  return roles;
+  // Family deduplication: collapse multiple family members matching the same family reference
+  // Group roles by (type, matchedText)
+  const roleGroups = new Map<string, Role[]>();
+  roles.forEach(role => {
+    const key = `${role.type}:${role.matchedText}`;
+    if (!roleGroups.has(key)) {
+      roleGroups.set(key, []);
+    }
+    roleGroups.get(key)!.push(role);
+  });
+
+  // Check each group for family reference deduplication
+  const deduplicatedRoles: Role[] = [];
+  roleGroups.forEach((group) => {
+    if (group.length > 1) {
+      // Multiple people matched the same text - check if it's a family reference
+      // Get all unique family references from all memberships
+      const allFamilyRefs = new Set<string>();
+      profile.memberships.forEach(membership => {
+        (membership.family_references || []).forEach(ref => {
+          allFamilyRefs.add(ref.toLowerCase());
+        });
+      });
+
+      // Check if the matchedText is a family reference
+      const isFamilyRef = allFamilyRefs.has(group[0].matchedText.toLowerCase());
+
+      if (isFamilyRef) {
+        // Deduplicate: keep only 1 role for the family
+        deduplicatedRoles.push({
+          type: group[0].type,
+          subject: group[0].matchedText.toUpperCase(), // Family name (e.g., "SIOS")
+          kind: 'self', // Family role
+          matchedText: group[0].matchedText,
+        });
+      } else {
+        // Not a family ref - keep all individual roles
+        deduplicatedRoles.push(...group);
+      }
+    } else {
+      // Only 1 role in group - keep it
+      deduplicatedRoles.push(group[0]);
+    }
+  });
+
+  return deduplicatedRoles;
 }
 
 export function filterRelevantEvents(
