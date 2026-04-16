@@ -17,6 +17,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Store state in KV with 10-minute TTL
     await kv.set(`oauth_state:${state}`, { created_at: Date.now() }, { ex: 600 });
 
+    // Check if we should force account selection (for retries after errors)
+    const forceAccountSelection = req.query.retry === 'true';
+
     // Build Google OAuth URL
     const params = new URLSearchParams({
       client_id: clientId,
@@ -24,7 +27,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       response_type: 'code',
       scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
       access_type: 'offline',
-      prompt: 'consent', // CRITICAL: Forces refresh token on every auth
+      // If retry, force account selection. Otherwise, force consent for refresh token
+      prompt: forceAccountSelection ? 'select_account consent' : 'consent',
       state,
     });
 

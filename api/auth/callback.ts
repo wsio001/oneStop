@@ -11,10 +11,20 @@ type TokenResponse = {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    const { code, state } = req.query;
+    const { code, state, error, error_description } = req.query;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
+    // If Google OAuth returned an error, redirect to app with error params
+    if (error) {
+      const errorParams = new URLSearchParams({
+        error: error as string,
+        ...(error_description && { error_description: error_description as string }),
+      });
+      return res.redirect(302, `${appUrl}/?${errorParams.toString()}`);
+    }
 
     if (!code || !state || typeof code !== 'string' || typeof state !== 'string') {
-      return res.status(400).json({ error: 'Missing code or state parameter' });
+      return res.redirect(302, `${appUrl}/?error=invalid_request&error_description=Missing code or state parameter`);
     }
 
     // Verify CSRF state
@@ -28,7 +38,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
     if (!clientId || !clientSecret) {
       return res.status(500).json({ error: 'Missing OAuth credentials' });

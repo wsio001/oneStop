@@ -4,6 +4,7 @@ import { useAppStore } from './store/appStore';
 import { checkAuth } from './lib/api';
 import WelcomeScreen from './screens/WelcomeScreen';
 import OnboardingScreen from './screens/OnboardingScreen';
+import AuthErrorScreen from './screens/AuthErrorScreen';
 import Header from './components/Header';
 import TabBar from './components/TabBar';
 import SettingsModal from './components/SettingsModal';
@@ -21,9 +22,23 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
+  const [authError, setAuthError] = useState<{ error?: string; description?: string } | null>(null);
 
   // Navigation state
   const hasSeenWelcome = localStorage.getItem('has_seen_welcome') === 'true';
+
+  // Check for OAuth errors in URL params (from callback redirect)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get('error');
+    const errorDescription = params.get('error_description');
+
+    if (error) {
+      setAuthError({ error, description: errorDescription || undefined });
+      // Clean up URL without reload
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   // Pull-to-refresh handler
   const handleRefresh = async () => {
@@ -100,6 +115,12 @@ export default function App() {
   function handleOnboardingComplete() {
     // Profile is now set, app will automatically show main content
     // Auth flow will be triggered by the useEffect above
+  }
+
+  // Show auth error screen if OAuth failed
+  if (authError) {
+    console.log('❌ Rendering: AuthErrorScreen (OAuth error)');
+    return <AuthErrorScreen error={authError.error} errorDescription={authError.description} />;
   }
 
   // Show welcome screen if first time
