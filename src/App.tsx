@@ -7,6 +7,8 @@ import OnboardingScreen from './screens/OnboardingScreen';
 import Header from './components/Header';
 import TabBar from './components/TabBar';
 import SettingsModal from './components/SettingsModal';
+import PullToRefresh from './components/PullToRefresh';
+import Toast from './components/Toast';
 import TodayTab from './tabs/TodayTab';
 import WeeklyTab from './tabs/WeeklyTab';
 import BulletinTab from './tabs/BulletinTab';
@@ -18,9 +20,20 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabName>('today');
   const [showSettings, setShowSettings] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
 
   // Navigation state
   const hasSeenWelcome = localStorage.getItem('has_seen_welcome') === 'true';
+
+  // Pull-to-refresh handler
+  const handleRefresh = async () => {
+    const result = await refreshAll();
+    if (result.hasChanges) {
+      setToast({ message: 'Updated', type: 'success' });
+    } else {
+      setToast({ message: 'No changes', type: 'info' });
+    }
+  };
 
   // DEBUG: Add a global reset function you can call from console
   useEffect(() => {
@@ -166,12 +179,14 @@ export default function App() {
         />
       </div>
 
-      {/* Scrollable Content Area */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-32">
-        {activeTab === 'today' && <TodayTab profile={profile} />}
-        {activeTab === 'weekly' && <WeeklyTab profile={profile} />}
-        {activeTab === 'bulletin' && <BulletinTab />}
-      </div>
+      {/* Scrollable Content Area with Pull-to-Refresh */}
+      <PullToRefresh onRefresh={handleRefresh}>
+        <div className="px-4 pt-4">
+          {activeTab === 'today' && <TodayTab profile={profile} />}
+          {activeTab === 'weekly' && <WeeklyTab profile={profile} />}
+          {activeTab === 'bulletin' && <BulletinTab />}
+        </div>
+      </PullToRefresh>
 
       {/* Fixed TabBar */}
       <div className="fixed bottom-0 left-0 right-0 z-50">
@@ -183,6 +198,15 @@ export default function App() {
           profile={profile}
           isOpen={showSettings}
           onClose={() => setShowSettings(false)}
+        />
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
         />
       )}
     </div>

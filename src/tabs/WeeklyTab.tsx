@@ -112,15 +112,15 @@ export default function WeeklyTab({ profile }: WeeklyTabProps) {
   const eventCount = focusMode === 'my' ? relevant.length : selectedDayEvents.length;
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="pb-6">
       {/* Header */}
-      <div className="px-4 pt-4 pb-2 sticky top-0 bg-white z-10">
+      <div className="pb-2">
         <h1 className="text-2xl font-bold text-gray-900">Weekly</h1>
         <p className="text-sm text-gray-500">{dateRange}</p>
       </div>
 
       {/* Focus Toggle */}
-      <div className="px-4 pb-3">
+      <div className="pb-3">
         <div className="flex bg-gray-100 rounded-full p-0.5 text-sm">
           <button
             onClick={() => setFocusMode('my')}
@@ -142,19 +142,19 @@ export default function WeeklyTab({ profile }: WeeklyTabProps) {
       </div>
 
       {/* Date Ribbon */}
-      <div className="px-4">
+      <div>
         <DateRibbon days={dayCells} onDaySelect={setSelectedDate} />
       </div>
 
       {/* Selected Day Subheader */}
-      <div className="px-4 pb-3">
+      <div className="pb-3">
         <p className="text-sm text-gray-600">
           {selectedDayLabel} · {eventCount} {eventCount === 1 ? 'event' : 'events'}
         </p>
       </div>
 
       {/* Event List */}
-      <div className="px-4 pb-6">
+      <div>
         {focusMode === 'my' ? (
           <>
             {/* My Events Mode: Only show relevant events */}

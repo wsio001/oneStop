@@ -38,7 +38,7 @@ export default function BulletinTab() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+      <div className="pb-6">
         <BulletinSkeleton />
         <BulletinSkeleton />
         <BulletinSkeleton />
@@ -47,7 +47,7 @@ export default function BulletinTab() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-4">
+    <div className="pb-6">
       {bulletin.length > 0 ? (
         <div>
           {bulletin.map((post) => (

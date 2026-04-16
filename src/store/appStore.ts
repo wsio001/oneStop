@@ -23,7 +23,7 @@ type AppState = {
   authStatus: 'unknown' | 'authenticated' | 'unauthenticated';
 
   // Actions
-  refreshAll: () => Promise<void>;
+  refreshAll: () => Promise<{ hasChanges: boolean }>;
   refreshIfStale: (maxAgeMs: number) => Promise<void>;
 };
 
@@ -39,7 +39,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   refreshAll: async () => {
     const state = get();
-    if (state.syncing) return;
+    if (state.syncing) return { hasChanges: false };
 
     set({ syncing: true });
 
@@ -59,7 +59,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       if (dateTabs.length === 0 && !bulletin_tab) {
         set({ syncing: false, lastSync: Date.now() });
-        return;
+        return { hasChanges: false };
       }
 
       // Fetch date tabs
@@ -69,6 +69,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       const newHashes: Record<string, string> = {};
       const newTabs: Record<string, Event[]> = {};
       const oldHashes = state.hashes;
+      let hasChanges = false;
 
       console.log('🔵 Processing fetched date tabs:', Object.keys(rawData));
 
@@ -80,6 +81,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         if (hash !== oldHashes[tabName] || !state.tabs[tabName]) {
           const events = parseSheetTab(tabName, values, IRVINE_CONFIG);
           newTabs[tabName] = events;
+          hasChanges = true;
         } else {
           // Keep existing parsed data (reference stays the same for React.memo)
           newTabs[tabName] = state.tabs[tabName];
@@ -101,6 +103,7 @@ export const useAppStore = create<AppState>((set, get) => ({
             console.log(`🔵 Parsing bulletin (hash changed or empty): old=${oldHashes[bulletin_tab.tab_name]}, new=${hash}`);
             newBulletin = parseBulletinTab(bulletin_tab.tab_name, bulletinData.rows);
             console.log(`🔵 Bulletin parsed: ${newBulletin.length} posts`);
+            hasChanges = true;
           } else {
             console.log(`🔵 Keeping existing bulletin (hash unchanged)`);
           }
@@ -120,9 +123,12 @@ export const useAppStore = create<AppState>((set, get) => ({
         lastSync: Date.now(),
         syncing: false,
       });
+
+      return { hasChanges };
     } catch (error) {
       console.error('Refresh failed:', error);
       set({ syncing: false, authStatus: 'unauthenticated' });
+      return { hasChanges: false };
     }
   },
 
