@@ -9,6 +9,7 @@ type ProfileFormData = {
   city: string;
   selfName: string;
   selfAliases: string;
+  gender: 'male' | 'female';
   married: boolean;
   showSpouseEvents: boolean;
   spouseName: string;
@@ -47,6 +48,7 @@ export default function ProfileForm({
         city: 'irvine',
         selfName: '',
         selfAliases: '',
+        gender: 'male',
         married: false,
         showSpouseEvents: false,
         spouseName: '',
@@ -65,6 +67,7 @@ export default function ProfileForm({
       city: membership.city_id || 'irvine',
       selfName: membership.self.display_name || '',
       selfAliases: membership.self.aliases.join(', '),
+      gender: membership.gender || 'male',
       married: membership.married,
       showSpouseEvents: membership.show_spouse_events,
       spouseName: membership.spouse?.display_name || '',
@@ -113,6 +116,7 @@ export default function ProfileForm({
         city: 'irvine',
         selfName: '',
         selfAliases: '',
+        gender: 'male',
         married: false,
         showSpouseEvents: false,
         spouseName: '',
@@ -131,6 +135,7 @@ export default function ProfileForm({
       city: membership.city_id || 'irvine',
       selfName: membership.self.display_name || '',
       selfAliases: membership.self.aliases.join(', '),
+      gender: membership.gender || 'male',
       married: membership.married,
       showSpouseEvents: membership.show_spouse_events,
       spouseName: membership.spouse?.display_name || '',
@@ -284,6 +289,35 @@ export default function ProfileForm({
                 className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Gender</label>
+              <div className="flex gap-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="male"
+                    checked={formData.gender === 'male'}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, gender: e.target.value as 'male' | 'female' }))
+                    }
+                    className="w-4 h-4 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span className="text-sm text-gray-700">Male</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="female"
+                    checked={formData.gender === 'female'}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, gender: e.target.value as 'male' | 'female' }))
+                    }
+                    className="w-4 h-4 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span className="text-sm text-gray-700">Female</span>
+                </label>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -376,93 +410,89 @@ export default function ProfileForm({
                   </div>
                 </div>
               )}
-            </>
-          )}
-        </div>
 
-        {/* Kids Toggle */}
-        <div
-          className={`border rounded-lg p-3 ${
-            formData.hasKids ? 'border-purple-300 bg-purple-50' : 'border-gray-300'
-          }`}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-medium text-gray-900">Have kids?</label>
-            <Toggle
-              enabled={formData.hasKids}
-              onChange={(enabled) => {
-                setFormData((prev) => ({
-                  ...prev,
-                  hasKids: enabled,
-                  showKidsEvents: enabled ? prev.showKidsEvents : false,
-                  kids: enabled ? prev.kids : [],
-                }));
-              }}
-            />
-          </div>
+              {/* Kids Section (nested inside married) */}
+                <div className="border-t border-purple-300 pt-3 mt-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs text-purple-900">Have kids?</label>
+                    <Toggle
+                      enabled={formData.hasKids}
+                      onChange={(enabled) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          hasKids: enabled,
+                          showKidsEvents: enabled ? prev.showKidsEvents : false,
+                          kids: enabled ? prev.kids : [],
+                        }));
+                      }}
+                    />
+                  </div>
 
-          {formData.hasKids && (
-            <>
-              <div className="border-t border-purple-300 pt-3 mb-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs text-purple-900">
-                    Show kids' events too?
-                  </label>
-                  <Toggle
-                    enabled={formData.showKidsEvents}
-                    onChange={(enabled) =>
-                      setFormData((prev) => ({ ...prev, showKidsEvents: enabled }))
-                    }
-                  />
-                </div>
-                {!formData.showKidsEvents && formData.kids.length > 0 && (
-                  <p className="text-[11px] text-purple-900 mt-1">
-                    Kids' info is saved but hidden from your feed
-                  </p>
-                )}
-              </div>
-
-              {formData.showKidsEvents && (
-                <div className="border-t border-purple-300 pt-3 space-y-2">
-                  {formData.kids.map((kid, index) => (
-                    <div
-                      key={index}
-                      className="bg-white border border-purple-300 rounded-lg p-2.5 flex items-start justify-between gap-2"
-                    >
-                      <div className="flex-1 space-y-1.5">
-                        <input
-                          type="text"
-                          value={kid.name}
-                          onChange={(e) => updateKid(index, 'name', e.target.value)}
-                          placeholder="Child's name"
-                          className="w-full text-xs font-medium text-purple-900 focus:outline-none"
-                        />
-                        <input
-                          type="text"
-                          value={kid.aliases}
-                          onChange={(e) => updateKid(index, 'aliases', e.target.value)}
-                          placeholder="Nicknames"
-                          className="w-full text-[11px] text-purple-900 focus:outline-none"
-                        />
+                  {formData.hasKids && (
+                    <>
+                      <div className="border-t border-purple-300 pt-3 mb-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs text-purple-900">
+                            Show kids' events too?
+                          </label>
+                          <Toggle
+                            enabled={formData.showKidsEvents}
+                            onChange={(enabled) =>
+                              setFormData((prev) => ({ ...prev, showKidsEvents: enabled }))
+                            }
+                          />
+                        </div>
+                        {!formData.showKidsEvents && formData.kids.length > 0 && (
+                          <p className="text-[11px] text-purple-900 mt-1">
+                            Kids' info is saved but hidden from your feed
+                          </p>
+                        )}
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => removeKid(index)}
-                        className="text-xs text-purple-900 hover:text-purple-700 mt-1"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={addKid}
-                    className="w-full border border-dashed border-purple-300 rounded-lg py-1.5 text-xs text-purple-900 hover:bg-purple-100"
-                  >
-                    + Add child
-                  </button>
+
+                      {formData.showKidsEvents && (
+                        <div className="border-t border-purple-300 pt-3 space-y-2">
+                          {formData.kids.map((kid, index) => (
+                            <div
+                              key={index}
+                              className="bg-white border border-purple-300 rounded-lg p-2.5 flex items-start justify-between gap-2"
+                            >
+                              <div className="flex-1 space-y-1.5">
+                                <input
+                                  type="text"
+                                  value={kid.name}
+                                  onChange={(e) => updateKid(index, 'name', e.target.value)}
+                                  placeholder="Child's name"
+                                  className="w-full text-xs font-medium text-purple-900 focus:outline-none"
+                                />
+                                <input
+                                  type="text"
+                                  value={kid.aliases}
+                                  onChange={(e) => updateKid(index, 'aliases', e.target.value)}
+                                  placeholder="Nicknames"
+                                  className="w-full text-[11px] text-purple-900 focus:outline-none"
+                                />
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeKid(index)}
+                                className="text-xs text-purple-900 hover:text-purple-700 mt-1"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={addKid}
+                            className="w-full border border-dashed border-purple-300 rounded-lg py-1.5 text-xs text-purple-900 hover:bg-purple-100"
+                          >
+                            + Add child
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
-              )}
             </>
           )}
         </div>

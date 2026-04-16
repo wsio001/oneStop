@@ -52,6 +52,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
               )
           : [],
       groups: formData.groups,
+      gender: formData.gender,
       married: formData.married,
       show_spouse_events: formData.showSpouseEvents,
       has_kids: formData.hasKids,

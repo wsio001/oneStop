@@ -66,6 +66,7 @@ export function createMembership(partial: Partial<Membership>): Membership {
     spouse: partial.spouse || null,
     dependents: partial.dependents || [],
     groups: partial.groups || [],
+    gender: partial.gender || 'male',
     married: partial.married ?? false,
     show_spouse_events: partial.show_spouse_events ?? false,
     has_kids: partial.has_kids ?? false,

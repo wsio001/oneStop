@@ -66,6 +66,7 @@ export default function SettingsModal({ profile, isOpen, onClose }: SettingsModa
               )
           : [],
       groups: formData.groups,
+      gender: formData.gender,
       married: formData.married,
       show_spouse_events: formData.showSpouseEvents,
       has_kids: formData.hasKids,

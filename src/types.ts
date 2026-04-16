@@ -11,6 +11,7 @@ export type Membership = {
   spouse: Person | null;
   dependents: Person[];
   groups: string[];
+  gender: 'male' | 'female';
   married: boolean;
   show_spouse_events: boolean;
   has_kids: boolean;
