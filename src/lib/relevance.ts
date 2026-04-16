@@ -110,6 +110,86 @@ function tokenizeMembership(membership: Membership): TokenizedPerson[] {
 }
 
 /**
+ * Check if a cell value contains family status keywords that match the membership profile.
+ * Returns the matched keyword if found, otherwise null.
+ */
+function checkFamilyStatusKeyword(cellValue: string, membership: Membership): string | null {
+  const cellLower = cellValue.toLowerCase().trim();
+  const { gender, married, has_kids } = membership;
+
+  // Define all family status keywords
+  const keywords = {
+    // Gender-based
+    brothers: ['brothers', 'bros'],
+    sisters: ['sisters', 'sis'],
+
+    // Marital + Gender
+    singleBrothers: ['single brothers', 'single bros'],
+    singleSisters: ['single sisters', 'single sis'],
+
+    // Parent status
+    nonParents: ['non-parents', 'non parents'],
+    parents: ['parents', '1 parent'],
+    dads: ['dads', 'dad'],
+    moms: ['moms', 'mom'],
+    nonDad: ['non-dad', 'non dad'],
+    nonMom: ['non-mom', 'non mom'],
+  };
+
+  // Helper to check if any variant matches
+  const containsKeyword = (variants: string[]) => {
+    return variants.some(variant => cellLower.includes(variant));
+  };
+
+  // Check based on user's profile
+  // Male, single, no kids
+  if (gender === 'male' && !married && !has_kids) {
+    if (containsKeyword(keywords.brothers)) return 'brothers';
+    if (containsKeyword(keywords.singleBrothers)) return 'single brothers';
+    if (containsKeyword(keywords.nonParents)) return 'non-parents';
+    if (containsKeyword(keywords.nonDad)) return 'non-dad';
+  }
+
+  // Female, single, no kids
+  if (gender === 'female' && !married && !has_kids) {
+    if (containsKeyword(keywords.sisters)) return 'sisters';
+    if (containsKeyword(keywords.singleSisters)) return 'single sisters';
+    if (containsKeyword(keywords.nonParents)) return 'non-parents';
+    if (containsKeyword(keywords.nonMom)) return 'non-mom';
+  }
+
+  // Male, married, no kids
+  if (gender === 'male' && married && !has_kids) {
+    if (containsKeyword(keywords.brothers)) return 'brothers';
+    if (containsKeyword(keywords.nonParents)) return 'non-parents';
+    if (containsKeyword(keywords.nonDad)) return 'non-dad';
+  }
+
+  // Female, married, no kids
+  if (gender === 'female' && married && !has_kids) {
+    if (containsKeyword(keywords.sisters)) return 'sisters';
+    if (containsKeyword(keywords.nonParents)) return 'non-parents';
+    if (containsKeyword(keywords.nonMom)) return 'non-mom';
+  }
+
+  // Male, married, has kids
+  if (gender === 'male' && married && has_kids) {
+    if (containsKeyword(keywords.brothers)) return 'brothers';
+    if (containsKeyword(keywords.parents)) return 'parents';
+    if (containsKeyword(keywords.dads)) return 'dads';
+  }
+
+  // Female, married, has kids
+  if (gender === 'female' && married && has_kids) {
+    if (containsKeyword(keywords.sisters)) return 'sisters';
+    if (containsKeyword(keywords.parents)) return 'parents';
+    if (containsKeyword(keywords.moms)) return 'moms';
+  }
+
+  return null;
+}
+
+/**
  * Enhanced matching algorithm with last name anchor
  *
  * Rules:
@@ -200,6 +280,22 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
 
       // Check in_charge (iterate over array elements)
       if (columnsToCheck.includes('in_charge')) {
+        // First check for family status keywords
+        for (const element of event.in_charge) {
+          const familyKeyword = checkFamilyStatusKeyword(element, membership);
+          if (familyKeyword) {
+            const roleKey = `LEAD:${familyKeyword}`;
+            if (!seenRoles.has(roleKey)) {
+              const subject = familyKeyword.toUpperCase();
+              const role = { type: 'LEAD' as const, subject, kind: person.kind, matchedText: familyKeyword };
+              roles.push(role);
+              seenRoles.set(roleKey, role);
+            }
+            break;
+          }
+        }
+
+        // Then check for name matches
         for (const element of event.in_charge) {
           const match = checkMatch(person, element);
           if (match.matched) {
@@ -224,6 +320,22 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
 
       // Check helpers (iterate over array elements)
       if (columnsToCheck.includes('helpers')) {
+        // First check for family status keywords
+        for (const element of event.helpers) {
+          const familyKeyword = checkFamilyStatusKeyword(element, membership);
+          if (familyKeyword) {
+            const roleKey = `HELPER:${familyKeyword}`;
+            if (!seenRoles.has(roleKey)) {
+              const subject = familyKeyword.toUpperCase();
+              const role = { type: 'HELPER' as const, subject, kind: person.kind, matchedText: familyKeyword };
+              roles.push(role);
+              seenRoles.set(roleKey, role);
+            }
+            break;
+          }
+        }
+
+        // Then check for name matches
         for (const element of event.helpers) {
           const match = checkMatch(person, element);
           if (match.matched) {
@@ -246,6 +358,22 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
 
       // Check childcare (iterate over array elements)
       if (columnsToCheck.includes('childcare')) {
+        // First check for family status keywords
+        for (const element of event.childcare) {
+          const familyKeyword = checkFamilyStatusKeyword(element, membership);
+          if (familyKeyword) {
+            const roleKey = `CHILDCARE:${familyKeyword}`;
+            if (!seenRoles.has(roleKey)) {
+              const subject = familyKeyword.toUpperCase();
+              const role = { type: 'CHILDCARE' as const, subject, kind: person.kind, matchedText: familyKeyword };
+              roles.push(role);
+              seenRoles.set(roleKey, role);
+            }
+            break;
+          }
+        }
+
+        // Then check for name matches
         for (const element of event.childcare) {
           const match = checkMatch(person, element);
           if (match.matched) {
@@ -268,6 +396,22 @@ export function computeRelevance(event: Event, profile: UserProfile): Role[] {
 
       // Check food (iterate over array elements)
       if (columnsToCheck.includes('food')) {
+        // First check for family status keywords
+        for (const element of event.food) {
+          const familyKeyword = checkFamilyStatusKeyword(element, membership);
+          if (familyKeyword) {
+            const roleKey = `FOOD:${familyKeyword}`;
+            if (!seenRoles.has(roleKey)) {
+              const subject = familyKeyword.toUpperCase();
+              const role = { type: 'FOOD' as const, subject, kind: person.kind, matchedText: familyKeyword };
+              roles.push(role);
+              seenRoles.set(roleKey, role);
+            }
+            break;
+          }
+        }
+
+        // Then check for name matches
         for (const element of event.food) {
           const match = checkMatch(person, element);
           if (match.matched) {
