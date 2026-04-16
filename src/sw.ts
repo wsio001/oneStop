@@ -5,7 +5,7 @@
 
 declare const self: ServiceWorkerGlobalScope;
 
-const CACHE_VERSION = 'schedule-lite-v1';
+const CACHE_VERSION = 'schedule-lite-v2';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
